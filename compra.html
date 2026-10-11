@@ -9,10 +9,17 @@
   :root { --bg: #000; --card: #1c1c1e; --line: #2c2c2e; --text: #fff; --muted: #8e8e93; --accent: #a6ff00; --red: #fa114f; --blue: #00d7ff; }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 16px; line-height: 1.35; padding-bottom: 30px; }
-  header { padding: 16px 16px 4px; max-width: 640px; margin: 0 auto; display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  button { font-family: inherit; }
+  header { padding: 16px 16px 4px; max-width: 640px; margin: 0 auto; }
   .back { color: var(--accent); text-decoration: none; font-size: .9rem; font-weight: 600; }
-  .who { color: var(--muted); font-size: .85rem; font-weight: 600; }
-  main { max-width: 640px; margin: 0 auto; padding: 4px 16px 14px; }
+  .week { max-width: 640px; margin: 0 auto; padding: 8px 16px 0; display: flex; align-items: center; gap: 8px; }
+  .week button { flex: 0 0 44px; height: 40px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--text); font-size: 1.2rem; cursor: pointer; }
+  .week div { flex: 1; text-align: center; font-weight: 700; font-size: .95rem; }
+  .week small { display: block; color: var(--muted); font-weight: 600; font-size: .75rem; min-height: 1em; }
+  nav { display: flex; gap: 5px; padding: 10px 16px; max-width: 640px; margin: 0 auto; border-bottom: 1px solid var(--line); }
+  nav button { flex: 1; padding: 10px 2px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--muted); font-size: .85rem; font-weight: 600; cursor: pointer; }
+  nav button.on { background: var(--accent); border-color: var(--accent); color: #000; }
+  main { max-width: 640px; margin: 0 auto; padding: 12px 16px 14px; }
   h1 { margin: 6px 0 12px; font-size: 2rem; letter-spacing: -.02em; }
   .sum { background: var(--card); border-radius: 20px; padding: 16px; margin-bottom: 18px; }
   .stat { display: flex; align-items: baseline; justify-content: space-between; }
@@ -27,240 +34,116 @@
   label.item input { appearance: none; -webkit-appearance: none; width: 24px; height: 24px; margin: 0; border-radius: 50%; border: 2px solid #48484a; background: transparent; cursor: pointer; }
   label.item input:checked { background: var(--accent); border-color: var(--accent); }
   label.item input:checked::after { content: ""; display: block; width: 6px; height: 11px; margin: 2px 0 0 7px; border: solid #000; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); }
-  .name small { display: block; color: var(--muted); font-size: .8rem; }
-  .qty { font-weight: 700; white-space: nowrap; }
-  label.item.done .name, label.item.done .qty { color: var(--muted); text-decoration: line-through; }
-  label.item.done small { text-decoration: none; }
+  .name::first-letter { text-transform: uppercase; }
+  .sub { color: var(--muted); font-size: .8rem; }
+  .qty { font-weight: 700; white-space: nowrap; text-align: right; }
+  .qty small { display: block; color: var(--muted); font-weight: 400; font-size: .78rem; }
+  label.item.done .name, label.item.done .qty { color: var(--muted); }
+  label.item.done .name { text-decoration: line-through; }
   .foot { color: var(--muted); font-size: .8rem; text-align: center; margin-top: 16px; }
 </style>
 </head>
 <body>
-<header>
-  <a class="back" href="index.html">‹ Inicio</a>
-  <span class="who" id="who"></span>
-</header>
+<header><a class="back" href="index.html">‹ Inicio</a></header>
+<div class="week">
+  <button id="prev" aria-label="Semana anterior">‹</button>
+  <div id="weekLabel"></div>
+  <button id="next" aria-label="Semana siguiente">›</button>
+</div>
+<nav id="tabs"></nav>
 <main id="main"></main>
 
+<script src="datos.js"></script>
 <script>
-// ---------- LISTAS: una entrada por persona. Cada producto es [nombre, cantidad semanal, para qué (opcional)] ----------
-// Las cantidades son la suma de una semana del menú. Si cambias el menú, actualiza también esta lista.
-const LISTS = {
-  conjunta: {
-    name: "Compra conjunta",
-    cats: [
-      ["Carne y pescado", [
-        ["Pechuga de pollo", "1.390 g", "Alba 500 g · Raquel 890 g"],
-        ["Carne picada de vacuno 99%", "720 g", "Alba 380 g · Raquel 340 g"],
-        ["Jamón serrano", "640 g", "Alba 310 g · Raquel 330 g"],
-        ["Tiras de pechuga de pollo Hacendado", "2 paquetes", "140 g cada una, poke del jueves"],
-        ["Salmón", "150 g", "Alba, sábado"],
-        ["Bacalao", "200 g", "Alba, domingo"]
-      ]],
-      ["Huevos y lácteos", [
-        ["Huevos", "15", "Alba 9 · Raquel 6"],
-        ["Claras de huevo", "800 ml", "Alba 550 ml · Raquel 250 ml"],
-        ["Cottage", "660 g", "Alba 480 g · Raquel 180 g"],
-        ["Yogur +Proteínas natural", "6 unidades", "Alba 5 · Raquel 1"],
-        ["Leche desnatada con proteínas", "1,5 l", "Alba, cafés en casa"],
-        ["Leche desnatada", "600 ml", "Alba, cafés en la oficina"],
-        ["Leche semidesnatada", "1,4 l", "Raquel, desayunos"],
-        ["Queso para untar light", "60 g", null],
-        ["Mozzarella rallada", "60 g", null]
-      ]],
-      ["Fruta y verdura", [
-        ["Plátanos", "14", "7 cada una; o manzanas o uvas"],
-        ["Uvas rojas", "200 g", "Alba, desayunos de oficina"],
-        ["Aguacate", "680 g", "Unos 4-5 · Alba 200 g · Raquel 480 g"],
-        ["Verduras para saltear", "850 g", "Alba 400 g · Raquel 450 g"],
-        ["Zanahorias", "Al gusto", "Boloñesa, viernes y para picar"],
-        ["Lechuga, tomate y verdura de ensalada", "Al gusto", null]
-      ]],
-      ["Despensa", [
-        ["Pan integral de espelta", "24 rebanadas", "816 g · Alba 9 · Raquel 15"],
-        ["Pasta de lentejas rojas", "260 g", "Alba 140 g · Raquel 120 g"],
-        ["Gnocchi", "450 g", "Alba 300 g · Raquel 150 g"],
-        ["Tomate frito", "400 g", null],
-        ["Patatas cocidas (tarro)", "500 g", "Alba 300 g · Raquel 200 g"],
-        ["Arroz", "180 g", "Raquel, en seco"],
-        ["Arroz en vasito", "2", "Poke del jueves"],
-        ["Atún al natural", "2 latas", null],
-        ["Tortillas integrales", "4", null],
-        ["Wasa con avena", "4 láminas", null],
-        ["Nueces", "40 g", "Alba"],
-        ["Azúcar de coco", "20 g", "Alba"],
-        ["Nesquik", "70 g", "Raquel"],
-        ["Salsa teriyaki", "40 ml", "Alba"],
-        ["Salsa de soja", "Al gusto", null],
-        ["Aceite de oliva", "40 g", null],
-        ["Café", "Al gusto", "Alba"]
-      ]],
-      ["Congelados", [
-        ["Bastones de batata Hacendado", "350 g", "Alba 250 g · Raquel 100 g"],
-        ["Edamame", "200 g", null],
-        ["Guisantes", "100 g", "Alba"]
-      ]],
-      ["Suplementos", [
-        ["Proteína Weider Isolate Whey", "420 g", "30 g al día cada una"],
-        ["Creatina", "42-70 g", "3-5 g al día cada una"]
-      ]]
-    ]
-  },
-  alba: {
-    name: "Compra de Alba",
-    cats: [
-      ["Carne y pescado", [
-        ["Pechuga de pollo", "500 g", "Teriyaki (2 raciones) y quesadilla"],
-        ["Carne picada de vacuno 99%", "380 g", "Boloñesa (2 raciones) y cena del miércoles"],
-        ["Jamón serrano", "310 g", "Desayunos y revuelto del viernes"],
-        ["Tiras de pechuga de pollo Hacendado", "1 paquete", "140 g, poke del jueves"],
-        ["Salmón", "150 g", "Sábado"],
-        ["Bacalao", "200 g", "Domingo"]
-      ]],
-      ["Huevos y lácteos", [
-        ["Huevos", "9", null],
-        ["Claras de huevo", "550 ml", null],
-        ["Cottage", "480 g", null],
-        ["Yogur +Proteínas natural", "5 unidades", "4 para desayunos de oficina y 1 el domingo"],
-        ["Leche desnatada con proteínas", "1,5 l", "3 cafés al día en casa"],
-        ["Leche desnatada", "600 ml", "Cafés de martes y jueves en la oficina"],
-        ["Queso para untar light", "30 g", null],
-        ["Mozzarella", "30 g", null]
-      ]],
-      ["Fruta y verdura", [
-        ["Plátanos", "7", "Merienda; o manzanas o uvas"],
-        ["Uvas rojas", "200 g", "Desayunos de oficina"],
-        ["Aguacate", "200 g", "Unos 2 pequeños"],
-        ["Verduras para saltear", "400 g", "Teriyaki"],
-        ["Zanahorias", "Al gusto", "Boloñesa, viernes y para picar"],
-        ["Ensalada", "Al gusto", null]
-      ]],
-      ["Despensa", [
-        ["Pan integral de espelta", "9 rebanadas", "306 g"],
-        ["Pasta de lentejas rojas", "140 g", null],
-        ["Gnocchi", "300 g", null],
-        ["Tomate frito", "200 g", null],
-        ["Patatas cocidas (tarro)", "300 g", null],
-        ["Arroz en vasito", "1", "125 g"],
-        ["Atún al natural", "1 lata", null],
-        ["Tortillas integrales", "2", null],
-        ["Wasa con avena", "2 láminas", null],
-        ["Nueces", "40 g", null],
-        ["Azúcar de coco", "20 g", null],
-        ["Salsa teriyaki", "40 ml", null],
-        ["Salsa de soja", "Al gusto", null],
-        ["Aceite de oliva", "10 g", null],
-        ["Café", "Al gusto", null]
-      ]],
-      ["Congelados", [
-        ["Bastones de batata Hacendado", "250 g", "Sábado y cena del miércoles"],
-        ["Edamame", "100 g", null],
-        ["Guisantes", "100 g", null]
-      ]],
-      ["Suplementos", [
-        ["Proteína Weider Isolate Whey", "210 g", "1 cazo de 30 g al día"],
-        ["Creatina", "21-35 g", "3-5 g al día"]
-      ]]
-    ]
-  },
-  raquel: {
-    name: "Compra de Raquel",
-    cats: [
-      ["Carne y pescado", [
-        ["Pechuga de pollo", "890 g", "Pollo con arroz (3 raciones), gnocchi, ensalada y quesadilla"],
-        ["Carne picada de vacuno 99%", "340 g", "Boloñesa (2 raciones) y cena del miércoles"],
-        ["Jamón serrano", "330 g", "Desayunos y revuelto del viernes"],
-        ["Tiras de pechuga de pollo Hacendado", "1 paquete", "140 g, poke del jueves"]
-      ]],
-      ["Huevos y lácteos", [
-        ["Huevos", "6", null],
-        ["Claras de huevo", "250 ml", null],
-        ["Leche semidesnatada", "1,4 l", "200 ml en cada desayuno"],
-        ["Cottage", "180 g", null],
-        ["Yogur +Proteínas natural", "1 unidad", "Domingo"],
-        ["Queso para untar light", "30 g", null],
-        ["Mozzarella rallada", "30 g", null]
-      ]],
-      ["Fruta y verdura", [
-        ["Plátanos", "7", "Merienda; o manzanas o uvas"],
-        ["Aguacate", "480 g", "Unos 3 medianos: desayunos y cenas"],
-        ["Verduras para saltear", "450 g", "Pollo con arroz"],
-        ["Zanahorias", "Al gusto", "Boloñesa y viernes"],
-        ["Lechuga, tomate y verdura de ensalada", "Al gusto", "Sábado y domingo"]
-      ]],
-      ["Despensa", [
-        ["Pan integral de espelta", "15 rebanadas", "510 g"],
-        ["Arroz", "180 g", "En seco, para 3 raciones"],
-        ["Pasta de lentejas rojas", "120 g", null],
-        ["Gnocchi", "150 g", null],
-        ["Tomate frito", "200 g", null],
-        ["Patatas cocidas (tarro)", "200 g", null],
-        ["Arroz en vasito", "1", "125 g, poke del jueves"],
-        ["Atún al natural", "1 lata", null],
-        ["Tortillas integrales", "2", null],
-        ["Wasa con avena", "2 láminas", null],
-        ["Nesquik", "70 g", "10 g en cada desayuno"],
-        ["Salsa de soja", "Al gusto", null],
-        ["Aceite de oliva", "30 g", null]
-      ]],
-      ["Congelados", [
-        ["Bastones de batata Hacendado", "100 g", "Cena del miércoles"],
-        ["Edamame", "100 g", null]
-      ]],
-      ["Suplementos", [
-        ["Proteína Weider Isolate Whey", "210 g", "1 cazo de 30 g al día"],
-        ["Creatina", "21-35 g", "3-5 g al día"]
-      ]]
-    ]
-  }
-};
-
 const $ = id => document.getElementById(id);
-function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
-
+const VIEWS = [["conjunta", "Conjunta"], ["alba", "Alba"], ["raquel", "Raquel"]];
 const q = new URLSearchParams(location.search).get("quien");
-const who = LISTS[q] ? q : Object.keys(LISTS)[0];
-const list = LISTS[who];
-const KEY = "compra-" + who;
-let checked = {};
-try { checked = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) {}
-function persist() { try { localStorage.setItem(KEY, JSON.stringify(checked)); } catch (e) {} }
+let view = VIEWS.some(v => v[0] === q) ? q : "conjunta";
+let offset = 0;
 
-const total = list.cats.reduce((n, c) => n + c[1].length, 0);
-function updateSum() {
-  const done = Object.keys(checked).filter(k => checked[k]).length;
-  $("count").textContent = done;
-  $("bar").style.width = Math.round(done / total * 100) + "%";
+let CHECKS = {};
+try { CHECKS = JSON.parse(localStorage.getItem("compra-v2")) || {}; } catch (e) {}
+function persist() { try { localStorage.setItem("compra-v2", JSON.stringify(CHECKS)); } catch (e) {} }
+function bucket() { const k = weekKey(offset) + "|" + view; return CHECKS[k] = CHECKS[k] || {}; }
+
+function num(n) { return String(Math.round(n * 10) / 10).replace(".", ","); }
+function amount(key, g) {             // cantidad principal y, si aplica, su peso entre paréntesis
+  const u = FOODS[key][5];
+  if (u === "ml") return [g >= 1000 ? num(g / 1000) + " l" : Math.round(g) + " ml", ""];
+  if (Array.isArray(u)) { const n = Math.ceil(g / u[0] - 0.01); return [n + " " + (n === 1 ? u[1] : u[2]), Math.round(g) + " g"]; }
+  return [g >= 1000 ? String(Math.round(g / 10) / 100).replace(".", ",") + " kg" : Math.round(g) + " g", ""];
+}
+
+// Suma los ingredientes de la semana planificada de cada persona
+function build() {
+  const people = view === "conjunta" ? Object.keys(PEOPLE) : [view];
+  const foods = {}, extras = {}; let coffee = false;
+  people.forEach(w => getWeek(w, offset).forEach(day => day.forEach(id => {
+    const d = DISHES[id];
+    if (d.t === "c" && id !== "sinCafe") coffee = true;
+    d.i.forEach(g => {
+      if (g[0]) { foods[g[0]] = foods[g[0]] || {}; foods[g[0]][w] = (foods[g[0]][w] || 0) + g[1]; }
+      else if (g[2] === "Libre" || g[2] === "Al gusto") extras[g[3]] = true;
+    });
+  })));
+  const cats = SECTIONS.map(sec => [sec, Object.keys(FOODS).filter(k => foods[k] && FOODS[k][4] === sec).map(k => {
+    const per = foods[k], total = people.reduce((n, w) => n + (per[w] || 0), 0), a = amount(k, total);
+    let sub = "";
+    if (people.length > 1) {
+      const parts = people.filter(w => per[w]);
+      sub = parts.length === 1 ? PEOPLE[parts[0]].name : parts.map(w => PEOPLE[w].name + " " + amount(k, per[w])[0]).join(" · ");
+    }
+    return [k, FOODS[k][0], a[0], a[1], sub];
+  })]);
+  cats.find(c => c[0] === "Suplementos")[1].push(["x-creatina", "creatina", "3-5 g al día", "", people.length > 1 ? "cada una" : ""]);
+  const free = Object.keys(extras).sort().map(n => ["x-" + n, n, "Al gusto", "", ""]);
+  if (coffee) free.push(["x-cafe", "café", "Al gusto", "", ""]);
+  if (free.length) cats.push(["Al gusto", free]);
+  return cats.filter(c => c[1].length);
 }
 
 function render() {
-  $("who").textContent = list.name;
-  document.title = list.name;
+  $("weekLabel").innerHTML = weekLabel(offset) + "<small>" + (offset === 0 ? "esta semana" : offset === 1 ? "la semana que viene" : offset === -1 ? "la semana pasada" : "") + "</small>";
+  $("tabs").innerHTML = VIEWS.map(v => '<button data-v="' + v[0] + '" class="' + (v[0] === view ? "on" : "") + '">' + v[1] + "</button>").join("");
+  const cats = build(), b = bucket(), total = cats.reduce((n, c) => n + c[1].length, 0);
   let html = "<h1>Lista de la compra</h1>" +
     '<div class="sum"><div class="stat"><div><b id="count">0</b><small>de ' + total + ' productos</small></div>' +
     '<button class="reset" id="reset">Desmarcar todo</button></div><div class="track"><i id="bar"></i></div></div>';
-  list.cats.forEach(c => {
-    html += '<section class="cat"><h2>' + esc(c[0]) + "</h2>";
+  cats.forEach(c => {
+    html += '<section class="cat"><h2>' + c[0] + "</h2>";
     c[1].forEach(it => {
-      const on = !!checked[it[0]];
+      const on = !!b[it[0]];
       html += '<label class="item' + (on ? " done" : "") + '"><input type="checkbox" data-k="' + esc(it[0]) + '"' + (on ? " checked" : "") + ">" +
-        '<span class="name">' + esc(it[0]) + (it[2] ? "<small>" + esc(it[2]) + "</small>" : "") + '</span><span class="qty">' + esc(it[1]) + "</span></label>";
+        '<span><div class="name">' + esc(it[1]) + "</div>" + (it[4] ? '<div class="sub">' + esc(it[4]) + "</div>" : "") + "</span>" +
+        '<span class="qty">' + esc(it[2]) + (it[3] ? "<small>" + esc(it[3]) + "</small>" : "") + "</span></label>";
     });
     html += "</section>";
   });
-  html += '<div class="foot">Cantidades para una semana del menú. Lo marcado se guarda en este dispositivo.</div>';
+  html += '<div class="foot">Se calcula con el menú planificado de esa semana en este dispositivo.<br>Son cantidades exactas: redondea al envase.</div>';
   $("main").innerHTML = html;
+  $("main").dataset.total = total;
   updateSum();
 }
+function updateSum() {
+  const b = bucket(), total = Number($("main").dataset.total);
+  const done = document.querySelectorAll("label.item input:checked").length;
+  $("count").textContent = done;
+  $("bar").style.width = (total ? Math.round(done / total * 100) : 0) + "%";
+}
 
+$("tabs").addEventListener("click", ev => { const b = ev.target.closest("button"); if (!b) return; view = b.dataset.v; render(); });
+$("prev").addEventListener("click", () => { offset--; render(); });
+$("next").addEventListener("click", () => { offset++; render(); });
 $("main").addEventListener("change", ev => {
   const i = ev.target; if (!i.dataset || !i.dataset.k) return;
-  if (i.checked) checked[i.dataset.k] = true; else delete checked[i.dataset.k];
+  const b = bucket();
+  if (i.checked) b[i.dataset.k] = true; else delete b[i.dataset.k];
   i.closest(".item").classList.toggle("done", i.checked);
   persist(); updateSum();
 });
 $("main").addEventListener("click", ev => {
   if (ev.target.id !== "reset") return;
-  checked = {}; persist(); render();
+  CHECKS[weekKey(offset) + "|" + view] = {}; persist(); render();
 });
 render();
 </script>
