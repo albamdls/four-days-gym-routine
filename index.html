@@ -35,6 +35,8 @@
     flex: 1; padding: 10px 4px; border-radius: 10px; border: 1px solid var(--line);
     background: var(--card); color: var(--muted); font-size: .85rem; font-weight: 600; cursor: pointer;
   }
+  nav button svg { display: block; margin: 0 auto; pointer-events: none; }
+  nav button[aria-label] { flex: 0 0 48px; }
   nav button.on { background: var(--accent); border-color: var(--accent); color: #000; }
   main { max-width: 640px; margin: 0 auto; padding: 14px 16px; }
   .card {
@@ -42,6 +44,8 @@
     padding: 14px; margin-bottom: 12px;
   }
   .card h2 { margin: 0; font-size: 1rem; }
+  .card h2 a { color: var(--text); text-decoration: none; display: block; }
+  .card h2 a span { color: var(--blue); font-size: .8rem; font-weight: 600; margin-left: 4px; white-space: nowrap; }
   .target { color: var(--red); font-size: .85rem; font-weight: 600; }
   .last { color: var(--muted); font-size: .82rem; margin: 6px 0 10px; }
   .set { display: grid; grid-template-columns: 28px 1fr 1fr; gap: 8px; align-items: center; margin-bottom: 6px; }
@@ -96,20 +100,18 @@
 const ROUTINE = [
   { tab: "Lun", name: "Torso A", focus: "Espalda y pecho", weekday: 1, ex: [
     ["Jalón al pecho", 3, "8-12"],
-    ["Press de pecho en máquina", 3, "8-12"],
-    ["Remo sentado en polea", 3, "10-12"],
-    ["Press de hombro con mancuernas (agarre neutro)", 3, "8-12"],
+    ["Press de pecho (máquina o banco)", 3, "8-12"],
+    ["Remo sentado (polea o máquina)", 3, "10-12"],
+    ["Press de hombro (agarre neutro)", 3, "8-12"],
     ["Elevaciones laterales con mancuernas", 3, "12-15"],
     ["Curl de bíceps con mancuernas", 2, "10-15"],
     ["Extensión de tríceps en polea", 2, "10-15"] ] },
   { tab: "Mar", name: "Pierna A", focus: "Cuádriceps", weekday: 2, ex: [
-    ["Prensa", 3, "10-12"],
-    ["Peso muerto rumano con mancuernas", 3, "10-12"],
-    ["Puente de glúteo en máquina", 3, "12-15"],
+    ["Prensa (pies a media altura)", 3, "10-12"],
+    ["Hip thrust en máquina", 3, "12-15"],
     ["Extensión de cuádriceps", 3, "12-15"],
     ["Curl femoral sentado", 3, "10-15"],
-    ["Gemelo en máquina", 3, "12-15"],
-    ["Plancha", 3, "30-45 s"] ] },
+    ["Gemelo en máquina", 3, "12-15"] ] },
   { tab: "Jue", name: "Torso B", focus: "Hombros y brazos", weekday: 4, ex: [
     ["Press de hombro en máquina (agarre neutro)", 3, "8-12"],
     ["Remo en máquina con pecho apoyado", 3, "8-12"],
@@ -124,7 +126,7 @@ const ROUTINE = [
     ["Sentadilla goblet a banco", 3, "10-12"],
     ["Curl femoral tumbado", 3, "10-15"],
     ["Abducción en máquina", 3, "12-15"],
-    ["Patada de glúteo en polea", 2, "12-15"],
+    ["Patada de glúteo (polea o máquina)", 2, "12-15"],
     ["Crunch en máquina", 3, "10-15"] ] }
 ];
 
@@ -148,6 +150,9 @@ function today() {
 }
 function fmtDate(iso) { const p = iso.split("-"); return p[2] + "/" + p[1] + "/" + p[0]; }
 function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+function imgUrl(name) {
+  return "https://www.google.com/search?tbm=isch&q=" + encodeURIComponent(name + " ejercicio gimnasio");
+}
 function setsText(sets) {
   return sets.map(s => (s.kg !== "" ? s.kg + " kg" : "—") + " × " + (s.reps !== "" ? s.reps : "—")).join(" · ");
 }
@@ -167,9 +172,10 @@ let current = ROUTINE.findIndex(d => d.weekday === new Date().getDay());
 if (current < 0) current = 0;
 
 function renderTabs() {
-  const labels = ROUTINE.map(d => d.tab).concat(["Historial"]);
+  const icon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg>';
+  const labels = ROUTINE.map(d => d.tab).concat([icon]);
   $("tabs").innerHTML = labels.map((l, i) =>
-    '<button data-i="' + i + '" class="' + (i === current ? "on" : "") + '">' + l + "</button>").join("");
+    '<button data-i="' + i + '" class="' + (i === current ? "on" : "") + '"' + (i === ROUTINE.length ? ' aria-label="Historial" title="Historial"' : "") + ">" + l + "</button>").join("");
 }
 
 function renderDay() {
@@ -182,7 +188,7 @@ function renderDay() {
     const name = e[0], nSets = e[1], reps = e[2];
     const last = lastFor(name);
     const done = !!(draft._done && draft._done[ei]);
-    html += '<div class="card' + (done ? " done" : "") + '"><h2>' + esc(name) + '</h2><div class="target">' + nSets + " × " + esc(reps) + "</div>";
+    html += '<div class="card' + (done ? " done" : "") + '"><h2><a href="' + imgUrl(name) + '" target="_blank" rel="noopener">' + esc(name) + ' <span>Ver ↗</span></a></h2><div class="target">' + nSets + " × " + esc(reps) + "</div>";
     html += '<div class="last">' + (last ? "Última vez (" + fmtDate(last.date) + "): <b>" + esc(setsText(last.sets)) + "</b>" : "Sin registros todavía") + "</div>";
     for (let s = 0; s < nSets; s++) {
       const d = (draft[ei] && draft[ei][s]) || {};
