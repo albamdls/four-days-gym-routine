@@ -45,6 +45,66 @@
 // ---------- LISTAS: una entrada por persona. Cada producto es [nombre, cantidad semanal, para qué (opcional)] ----------
 // Las cantidades son la suma de una semana del menú. Si cambias el menú, actualiza también esta lista.
 const LISTS = {
+  conjunta: {
+    name: "Compra conjunta",
+    cats: [
+      ["Carne y pescado", [
+        ["Pechuga de pollo", "1.240 g", "Alba 500 g · Raquel 740 g"],
+        ["Carne picada de vacuno 99%", "720 g", "Alba 380 g · Raquel 340 g"],
+        ["Jamón serrano", "640 g", "Alba 310 g · Raquel 330 g"],
+        ["Pollo asado La Carloteña", "450 g", "Alba 150 g · Raquel 300 g"],
+        ["Salmón", "150 g", "Alba, sábado"],
+        ["Bacalao", "200 g", "Alba, domingo"]
+      ]],
+      ["Huevos y lácteos", [
+        ["Huevos", "15", "Alba 9 · Raquel 6"],
+        ["Claras de huevo", "800 ml", "Alba 550 ml · Raquel 250 ml"],
+        ["Cottage", "660 g", "Alba 480 g · Raquel 180 g"],
+        ["Yogur +Proteínas natural", "6 unidades", "Alba 5 · Raquel 1"],
+        ["Leche desnatada con proteínas", "1,5 l", "Alba, cafés en casa"],
+        ["Leche desnatada", "600 ml", "Alba, cafés en la oficina"],
+        ["Leche semidesnatada", "1,4 l", "Raquel, desayunos"],
+        ["Queso para untar light", "60 g", null],
+        ["Mozzarella rallada", "60 g", null]
+      ]],
+      ["Fruta y verdura", [
+        ["Plátanos", "14", "7 cada una; o manzanas o uvas"],
+        ["Uvas rojas", "200 g", "Alba, desayunos de oficina"],
+        ["Aguacate", "680 g", "Unos 4-5 · Alba 200 g · Raquel 480 g"],
+        ["Verduras para saltear", "850 g", "Alba 400 g · Raquel 450 g"],
+        ["Zanahorias", "Al gusto", "Boloñesa, viernes y para picar"],
+        ["Lechuga, tomate y verdura de ensalada", "Al gusto", null]
+      ]],
+      ["Despensa", [
+        ["Pan integral de espelta", "24 rebanadas", "816 g · Alba 9 · Raquel 15"],
+        ["Pasta de lentejas rojas", "260 g", "Alba 140 g · Raquel 120 g"],
+        ["Gnocchi", "450 g", "Alba 300 g · Raquel 150 g"],
+        ["Tomate frito", "400 g", null],
+        ["Patatas cocidas (tarro)", "500 g", "Alba 300 g · Raquel 200 g"],
+        ["Arroz", "180 g", "Raquel, en seco"],
+        ["Arroz en vasito", "2", "Bowl del jueves"],
+        ["Atún al natural", "2 latas", null],
+        ["Tortillas integrales", "4", null],
+        ["Wasa con avena", "4 láminas", null],
+        ["Nueces", "40 g", "Alba"],
+        ["Azúcar de coco", "20 g", "Alba"],
+        ["Nesquik", "70 g", "Raquel"],
+        ["Salsa teriyaki", "40 ml", "Alba"],
+        ["Salsa de soja", "Al gusto", null],
+        ["Aceite de oliva", "40 g", null],
+        ["Café", "Al gusto", "Alba"]
+      ]],
+      ["Congelados", [
+        ["Bastones de batata Hacendado", "350 g", "Alba 250 g · Raquel 100 g"],
+        ["Edamame", "200 g", null],
+        ["Guisantes", "100 g", "Alba"]
+      ]],
+      ["Suplementos", [
+        ["Proteína Weider Isolate Whey", "420 g", "30 g al día cada una"],
+        ["Creatina", "42-70 g", "3-5 g al día cada una"]
+      ]]
+    ]
+  },
   alba: {
     name: "Compra de Alba",
     cats: [
