@@ -95,12 +95,7 @@ const DISHES = {
 
   // Comidas y cenas · Fuera de casa
   restaurante: { n: "Restaurante", t: "p", g: "Fuera de casa", i: [[null, 0, "", "Carne o pescado a la plancha o al horno"], [null, 0, "", "Su guarnición"], [null, 0, "", "Sin repetir pan"], [null, 0, "", "Sin postre, o compartido"]], note: "Calorías y proteína estimadas: no se pueden calcular.", fixed: [750, 40] },
-  libre:       { n: "Comida libre", t: "p", g: "Fuera de casa", i: [[null, 0, "", "Lo que quieras, sin pesar"], [null, 0, "", "Una sola comida"]], note: "No se cuenta en el total del día.", fixed: "libre" },
-
-  // Cafés
-  cafeProt:    { n: "Cafés con leche con proteínas", t: "c", i: [["lecheProt", 300, "300 ml", "leche con proteínas (3 cafés de 100 ml)"]], note: "Un cuarto café suma unas 53 kcal y 6 g de proteína." },
-  cafeNormal:  { n: "Cafés con leche desnatada", t: "c", i: [["leche", 300, "300 ml", "leche desnatada (3 cafés de 100 ml)"]], note: "Un cuarto café suma unas 35 kcal y 3 g de proteína." },
-  sinCafe:     { n: "Sin cafés con leche", t: "c", i: [[null, 0, "", "Café solo, o ninguno"]], fixed: [0, 0] }
+  libre:       { n: "Comida libre", t: "p", g: "Fuera de casa", i: [[null, 0, "", "Lo que quieras, sin pesar"], [null, 0, "", "Una sola comida"]], note: "No se cuenta en el total del día.", fixed: "libre" }
 };
 
 // Combinaciones de carne + acompañamiento: cada pareja genera un plato.
@@ -119,6 +114,18 @@ const COMBO_SIDES = [
 COMBO_PROTEINS.forEach(p => COMBO_SIDES.forEach(s => {
   DISHES[p[0] + s[0]] = { n: p[1] + " " + s[1], t: "p", g: p[3], i: [[p[0], p[2], null, FOODS[p[0]][0] + " (peso en crudo)"]].concat(s[2], [["aceite", 5], VERDURA]) };
 }));
+
+// Cafés: de 1 a 4 al día con cada tipo de leche (100 ml por café).
+// La opción de 3 cafés conserva las claves antiguas para no perder semanas ya guardadas.
+DISHES.sinCafe = { n: "Sin cafés con leche", t: "c", g: "Sin leche", i: [[null, 0, "", "Café solo, o ninguno"]], fixed: [0, 0] };
+[["lecheProt", "cafeProt", "leche con proteínas", "Leche con proteínas"],
+ ["leche", "cafeNormal", "leche desnatada", "Leche desnatada"],
+ ["lecheSemi", "cafeSemi", "leche semidesnatada", "Leche semidesnatada"]].forEach(m => {
+  for (let n = 1; n <= 4; n++) {
+    DISHES[n === 3 ? m[1] : m[1] + n] = { n: n + (n === 1 ? " café" : " cafés") + " con " + m[2], t: "c", g: m[3],
+      i: [[m[0], 100 * n, 100 * n + " ml", m[2] + " (" + n + (n === 1 ? " café" : " cafés") + " de 100 ml)"]] };
+  }
+});
 
 const TYPE_NAMES = { d: "Desayunos", p: "Comidas y cenas", m: "Meriendas", c: "Cafés" };
 const GROUPS = ["Pollo", "Cerdo", "Ternera", "Pescado", "Huevos", "Fuera de casa"];

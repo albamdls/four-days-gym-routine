@@ -41,10 +41,28 @@
   label.item.done .name, label.item.done .qty { color: var(--muted); }
   label.item.done .name { text-decoration: line-through; }
   .foot { color: var(--muted); font-size: .8rem; text-align: center; margin-top: 16px; }
+
+  /* Cabecera con el estilo del inicio */
+  header { display: block; padding: 16px 16px 8px; max-width: 640px; margin: 0 auto; }
+  .hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-top: 12px; }
+  .eyebrow { color: var(--muted); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+  .hero h1 { margin: 4px 0 0; font-size: 2.1rem; line-height: 1.05; letter-spacing: -.03em; }
+  .hero h1 span { background: linear-gradient(90deg, var(--accent), var(--blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero .ic { flex: 0 0 48px; height: 48px; border-radius: 14px; background: var(--c, var(--accent)); color: #000; display: flex; align-items: center; justify-content: center; }
+  .hero svg { display: block; }
+  nav button, .week button { border-radius: 12px; }
+  .sum { background: linear-gradient(135deg, #1f2b00, #06242b); border: 1px solid #2f3d10; border-radius: 22px; }
+  .cat { border-radius: 22px; }
 </style>
 </head>
 <body>
-<header><a class="back" href="index.html">‹ Inicio</a></header>
+<header>
+  <a class="back" href="index.html">‹ Inicio</a>
+  <div class="hero">
+    <div><div class="eyebrow">Con los menús de la semana</div><h1>Lista de la <span>compra</span></h1></div>
+    <span class="ic" style="--c:var(--blue)"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2.5l2.2 10.5h10.6L20.5 7H7"/><circle cx="9.5" cy="19" r="1.4"/><circle cx="17" cy="19" r="1.4"/></svg></span>
+  </div>
+</header>
 <div class="week">
   <button id="prev" aria-label="Semana anterior">‹</button>
   <div id="weekLabel"></div>
@@ -106,8 +124,7 @@ function render() {
   $("weekLabel").innerHTML = weekLabel(offset) + "<small>" + (offset === 0 ? "esta semana" : offset === 1 ? "la semana que viene" : offset === -1 ? "la semana pasada" : "") + "</small>";
   $("tabs").innerHTML = VIEWS.map(v => '<button data-v="' + v[0] + '" class="' + (v[0] === view ? "on" : "") + '">' + v[1] + "</button>").join("");
   const cats = build(), b = bucket(), total = cats.reduce((n, c) => n + c[1].length, 0);
-  let html = "<h1>Lista de la compra</h1>" +
-    '<div class="sum"><div class="stat"><div><b id="count">0</b><small>de ' + total + ' productos</small></div>' +
+  let html = '<div class="sum"><div class="stat"><div><b id="count">0</b><small>de ' + total + ' productos</small></div>' +
     '<button class="reset" id="reset">Desmarcar todo</button></div><div class="track"><i id="bar"></i></div></div>';
   cats.forEach(c => {
     html += '<section class="cat"><h2>' + c[0] + "</h2>";

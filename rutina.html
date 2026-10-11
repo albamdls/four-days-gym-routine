@@ -79,13 +79,31 @@
     font-weight: 700; font-size: .9rem; opacity: 0; transition: opacity .25s; pointer-events: none;
   }
   #toast.show { opacity: 1; }
+
+  /* Cabecera con el estilo del inicio */
+  header { display: block; padding: 16px 16px 8px; max-width: 640px; margin: 0 auto; }
+  .hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-top: 12px; }
+  .eyebrow { color: var(--muted); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+  .hero h1 { margin: 4px 0 0; font-size: 2.1rem; line-height: 1.05; letter-spacing: -.03em; }
+  .hero h1 span { background: linear-gradient(90deg, var(--accent), var(--blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero .ic { flex: 0 0 48px; height: 48px; border-radius: 14px; background: var(--c, var(--accent)); color: #000; display: flex; align-items: center; justify-content: center; }
+  .hero svg { display: block; }
+  nav button, .week button { border-radius: 12px; }
+  .back { margin-bottom: 0; }
+  .card { border-radius: 22px; border-color: transparent; padding: 16px; }
+  .card.done { border-color: var(--accent); }
+  .card h2 { font-size: 1.1rem; letter-spacing: -.01em; }
+  input[type=text], input[type=date] { border-radius: 12px; }
+  .btn { border-radius: 12px; }
 </style>
 </head>
 <body>
 <header>
   <a class="back" href="index.html">‹ Inicio</a>
-  <h1>Mi rutina</h1>
-  <div class="sub" id="subtitle"></div>
+  <div class="hero">
+    <div><div class="eyebrow" id="subtitle"></div><h1>Mi <span>rutina</span></h1></div>
+    <span class="ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5v11M17.5 6.5v11M3 9.5v5M21 9.5v5M6.5 12h11"/></svg></span>
+  </div>
 </header>
 <nav id="tabs"></nav>
 <main id="main"></main>

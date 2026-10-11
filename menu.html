@@ -24,7 +24,7 @@
   nav button.on { background: var(--accent); border-color: var(--accent); color: #000; }
   main { max-width: 640px; margin: 0 auto; padding: 12px 16px 14px; }
   h1 { margin: 6px 0 12px; font-size: 2rem; letter-spacing: -.02em; }
-  h1 span { color: var(--muted); font-size: 1rem; font-weight: 600; letter-spacing: 0; }
+  main h1 span { color: var(--muted); font-size: 1rem; font-weight: 600; letter-spacing: 0; }
   .sum { background: var(--card); border-radius: 20px; padding: 16px; margin-bottom: 18px; }
   .stat { display: flex; align-items: baseline; justify-content: space-between; }
   .stat + .track + .stat { margin-top: 14px; }
@@ -64,12 +64,29 @@
   .opt span { flex: 1; font-weight: 600; }
   .opt small { color: var(--muted); font-size: .82rem; white-space: nowrap; }
   .opt em { font-style: normal; color: var(--accent); font-weight: 800; }
+
+  /* Cabecera con el estilo del inicio */
+  header { display: block; padding: 16px 16px 8px; max-width: 640px; margin: 0 auto; }
+  .hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-top: 12px; }
+  .eyebrow { color: var(--muted); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+  .hero h1 { margin: 4px 0 0; font-size: 2.1rem; line-height: 1.05; letter-spacing: -.03em; }
+  .hero h1 span { background: linear-gradient(90deg, var(--accent), var(--blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero .ic { flex: 0 0 48px; height: 48px; border-radius: 14px; background: var(--c, var(--accent)); color: #000; display: flex; align-items: center; justify-content: center; }
+  .hero svg { display: block; }
+  nav button, .week button { border-radius: 12px; }
+  main h1 { font-size: 1.5rem; margin: 4px 0 12px; letter-spacing: -.02em; }
+  .sum { background: linear-gradient(135deg, #1f2b00, #06242b); border: 1px solid #2f3d10; border-radius: 22px; }
+  .meal { border-radius: 22px; }
+  .actions button { border-radius: 14px; }
 </style>
 </head>
 <body>
 <header>
   <a class="back" href="index.html">‹ Inicio</a>
-  <span class="who" id="who"></span>
+  <div class="hero">
+    <div><div class="eyebrow" id="goal"></div><h1>Menú de <span id="who"></span></h1></div>
+    <span class="ic" id="badge"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v8M4.5 3v4.5a2.5 2.5 0 0 0 5 0V3M7 11v10M17 21V3c-2.2 1.2-3.5 3.8-3.5 7v3H17"/></svg></span>
+  </div>
 </header>
 <div class="week">
   <button id="prev" aria-label="Semana anterior">‹</button>
@@ -94,7 +111,9 @@ function bar(value, goal, color) {
 }
 
 function render(keepScroll) {
-  $("who").textContent = "Menú de " + P.name;
+  $("who").textContent = P.name;
+  $("goal").textContent = "Objetivo " + P.kcalGoal + " kcal · " + P.protGoal + " g proteína";
+  $("badge").style.background = who === "raquel" ? "#bf5af2" : "var(--red)";
   document.title = "Menú de " + P.name;
   $("weekLabel").innerHTML = weekLabel(offset) + "<small>" + (offset === 0 ? "esta semana" : offset === 1 ? "la semana que viene" : offset === -1 ? "la semana pasada" : "") +
     (storedWeek(who, offset) ? (offset >= -1 && offset <= 1 ? " · " : "") + "con cambios" : "") + "</small>";
@@ -152,11 +171,12 @@ function openPicker(mi) {
       "<small>" + (t === null ? "sin contar" : t[0] + " kcal · " + t[1] + " g P") + "</small>" + (id === cur ? "<em>✓</em>" : "") + "</button>";
   };
   let body = "";
-  if (type === "p") GROUPS.forEach(g => {
-    const items = list.filter(id => DISHES[id].g === g);
+  const groupOf = id => DISHES[id].g || TYPE_NAMES[type];
+  const groups = type === "p" ? GROUPS : list.map(groupOf).filter((g, i, all) => all.indexOf(g) === i);
+  groups.forEach(g => {
+    const items = list.filter(id => groupOf(id) === g);
     if (items.length) body += "<h3>" + g + "</h3>" + items.map(row).join("");
   });
-  else body = "<h3>" + TYPE_NAMES[type] + "</h3>" + list.map(row).join("");
   $("sheet").innerHTML = '<div class="sh-head"><b>' + P.slots[mi][0] + " del " + DAYS[current].toLowerCase() + '</b><button id="close">Cerrar</button></div><div class="sh-body">' + body + "</div>";
   $("sheet").classList.add("open"); $("sheet").scrollTop = 0; document.body.classList.add("lock");
 }
