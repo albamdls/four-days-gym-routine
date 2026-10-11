@@ -89,7 +89,10 @@ const FOODS = {
   platano:    ["plátano", 89, 1.1, "G"],
   uvas:       ["uvas rojas", 69, 0.7, "G"],
   azucarCoco: ["azúcar de coco", 380, 0, "G"],
-  aceite:     ["aceite de oliva", 900, 0, "G"]
+  aceite:     ["aceite de oliva", 900, 0, "G"],
+  arrozSeco:  ["arroz (en seco)", 350, 7, "G"],
+  lecheSemi:  ["leche semidesnatada", 46, 3.2, "G"],
+  nesquik:    ["Nesquik", 380, 5, "G"]
 };
 
 // ---------- PLATOS: nombre, ingredientes, nota y (opcional) total fijo ----------
@@ -109,8 +112,15 @@ const DISHES = {
   quesadilla: ["Quesadilla de pollo", [["pechuga", 140], ["tortilla", 72, "2", "tortillas integrales (72 g)"], ["mozzarella", 30]], null],
   carneBatata: ["Carne picada con batata", [["carne", 120], ["batata", 100], ["cottage", 80], ["aguacate", 50]], null],
   bowl: ["Bowl de pollo y edamame", [["polloAsado", 150], ["edamame", 100], ["arroz", 125, null, "arroz redondo (1 vasito)"], [null, 0, "Al gusto", "salsa de soja"]], null],
-  revJamon: ["Revuelto con jamón", [["huevo", 55, "1", "huevo"], ["claras", 150, "150 ml"], ["jamon", 50], ["cottage", 100], [null, 0, "Libre", "zanahoria cruda"]], "Cena ligera para compensar el restaurante."],
+  revJamon: ["Revuelto con jamón", [["huevo", 55, "1", "huevo"], ["claras", 150, "150 ml"], ["jamon", 50], ["cottage", 100], [null, 0, "Libre", "zanahoria cruda"]], "Cena ligera."],
   wasa: ["Huevos con Wasa y aguacate", [["huevo", 110, "2", "huevos"], ["wasa", 35, "2", "Wasa con avena"], ["quesoUntar", 30], ["aguacate", 75], ["yogur", 120, "1", "yogur +Proteínas"]], null],
+  // --- Platos de Raquel ---
+  rTostadas: ["Tostadas con jamón y aguacate", [["pan", 68, null, "pan de espelta (2 rebanadas)"], ["jamon", 40], ["aguacate", 40], ["lecheSemi", 200, "200 ml"], ["nesquik", 10, null, "Nesquik (2 cucharaditas)"]], "El zumo de naranja, mejor para el fin de semana: un vaso son unas 110 kcal sin proteína."],
+  rPolloArroz: ["Pollo con arroz y verduras", [["pechuga", 150], ["arrozSeco", 60], ["verduras", 150], ["aceite", 5]], "Cantidades de una ración."],
+  rBolonesa: ["Boloñesa con pasta de lentejas", [["carne", 110], ["pastaLent", 60], ["tomate", 100], [null, 0, "Libre", "zanahoria rallada"]], "Cantidades de una ración."],
+  rGnocchi: ["Gnocchi con filete de pollo", [["pechuga", 150], ["gnocchi", 150], ["aceite", 5], [null, 0, "Libre", "ensalada"]], null],
+  rEnsalada: ["Ensalada completa de pollo", [["polloAsado", 150], ["patata", 200], ["huevo", 55, "1", "huevo duro"], ["aceite", 10], [null, 0, "Libre", "lechuga, tomate y la verdura que quieras"]], null],
+  rBatido: ["Batido de proteína y fruta", [["whey", 30, null, "proteína Weider Isolate (1 cazo), con agua"], ["platano", 120, "1", "plátano"]], "Si te pesa justo antes de entrenar, tómate la fruta antes y el batido al acabar. En vez de plátano: 1 manzana grande o 150 g de uvas."],
   libre: ["Cena libre", [[null, 0, "", "Lo que quieras, sin pesar"], [null, 0, "", "Una sola comida"]], "No se cuenta en el total del día.", "libre"],
   cafeProt: ["Cafés con leche", [["lecheProt", 300, "300 ml", "leche con proteínas (3 cafés de 100 ml)"]], "Un cuarto café suma unas 53 kcal y 6 g de proteína."],
   cafeNormal: ["Cafés con leche", [["leche", 300, "300 ml", "leche desnatada (3 cafés de 100 ml)"]], "Un cuarto café suma unas 35 kcal y 3 g de proteína."]
@@ -140,6 +150,28 @@ const MENUS = {
       1: "Comida de táper: la boloñesa de ayer.",
       2: "Cocina pollo teriyaki doble: la segunda ración es el táper de mañana.",
       3: "Comida de táper: el pollo teriyaki de ayer."
+    }
+  },
+  raquel: {
+    name: "Menú de Raquel",
+    kcalGoal: 1650, protGoal: 110,
+    times: ["7:15", "14:00", "18:15", "21:00"],
+    days: [
+      ["rTostadas", "rPolloArroz", "rBatido", "revAtun"],
+      ["rTostadas", "rPolloArroz", "rBatido", "quesadilla"],
+      ["rTostadas", "rPolloArroz", "rBatido", "carneBatata"],
+      ["rTostadas", "rBolonesa", "rBatido", "bowl"],
+      ["rTostadas", "rBolonesa", "rBatido", "revJamon"],
+      ["rTostadas", "rGnocchi", "rBatido", "libre"],
+      ["rTostadas", "rEnsalada", "rBatido", "wasa"]
+    ],
+    dayNotes: {
+      0: "Comida de táper: el pollo con arroz del domingo.",
+      1: "Comida de táper: el pollo con arroz del domingo.",
+      2: "Comida de táper: el pollo con arroz del domingo. Hoy cocina boloñesa doble para jueves y viernes.",
+      3: "Comida de táper: la boloñesa de ayer.",
+      4: "Comida de táper: la boloñesa del miércoles.",
+      6: "Hoy cocina pollo con arroz triple: es el táper de lunes, martes y miércoles."
     }
   }
 };
@@ -178,7 +210,7 @@ function render() {
   ids.forEach((id, mi) => {
     const d = DISHES[id], m = MEALS[mi], t = dishTotal(d);
     if (t === null) free = true; else { kcal += t[0]; prot += t[1]; }
-    cards += '<section class="meal"><div class="top"><span class="pill" style="background:' + m[2] + '">' + m[0] + '</span><span class="time">' + m[1] + "</span>" +
+    cards += '<section class="meal"><div class="top"><span class="pill" style="background:' + m[2] + '">' + m[0] + '</span><span class="time">' + ((menu.times && menu.times[mi]) || m[1]) + "</span>" +
       '<span class="kcal">' + (t === null ? "sin contar" : "<b>" + t[0] + "</b> kcal · <b>" + t[1] + "</b> g P") + "</span></div>" +
       "<h2>" + esc(d[0]) + "</h2>" +
       d[1].map(ing => {
