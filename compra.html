@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#000000">
+<title>Lista de la compra</title>
+<style>
+  :root { --bg: #000; --card: #1c1c1e; --line: #2c2c2e; --text: #fff; --muted: #8e8e93; --accent: #a6ff00; --red: #fa114f; --blue: #00d7ff; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 16px; line-height: 1.35; padding-bottom: 30px; }
+  header { padding: 16px 16px 4px; max-width: 640px; margin: 0 auto; display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .back { color: var(--accent); text-decoration: none; font-size: .9rem; font-weight: 600; }
+  .who { color: var(--muted); font-size: .85rem; font-weight: 600; }
+  main { max-width: 640px; margin: 0 auto; padding: 4px 16px 14px; }
+  h1 { margin: 6px 0 12px; font-size: 2rem; letter-spacing: -.02em; }
+  .sum { background: var(--card); border-radius: 20px; padding: 16px; margin-bottom: 18px; }
+  .stat { display: flex; align-items: baseline; justify-content: space-between; }
+  .stat b { font-size: 1.5rem; color: var(--accent); }
+  .stat small { font-size: .85rem; font-weight: 600; margin-left: 4px; }
+  .track { height: 8px; border-radius: 4px; background: var(--line); margin-top: 6px; overflow: hidden; }
+  .track i { display: block; height: 100%; border-radius: 4px; background: var(--accent); transition: width .2s; }
+  .reset { background: transparent; border: 0; color: var(--muted); font-size: .85rem; font-weight: 600; padding: 4px 0; cursor: pointer; }
+  .cat { background: var(--card); border-radius: 20px; margin-bottom: 12px; overflow: hidden; }
+  .cat h2 { margin: 0; padding: 14px 16px 10px; font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); }
+  label.item { display: grid; grid-template-columns: 26px 1fr auto; column-gap: 12px; align-items: center; padding: 11px 16px; border-top: 1px solid var(--line); cursor: pointer; }
+  label.item input { appearance: none; -webkit-appearance: none; width: 24px; height: 24px; margin: 0; border-radius: 50%; border: 2px solid #48484a; background: transparent; cursor: pointer; }
+  label.item input:checked { background: var(--accent); border-color: var(--accent); }
+  label.item input:checked::after { content: ""; display: block; width: 6px; height: 11px; margin: 2px 0 0 7px; border: solid #000; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); }
+  .name small { display: block; color: var(--muted); font-size: .8rem; }
+  .qty { font-weight: 700; white-space: nowrap; }
+  label.item.done .name, label.item.done .qty { color: var(--muted); text-decoration: line-through; }
+  label.item.done small { text-decoration: none; }
+  .foot { color: var(--muted); font-size: .8rem; text-align: center; margin-top: 16px; }
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="index.html">‹ Inicio</a>
+  <span class="who" id="who"></span>
+</header>
+<main id="main"></main>
+
+<script>
+// ---------- LISTAS: una entrada por persona. Cada producto es [nombre, cantidad semanal, para qué (opcional)] ----------
+// Las cantidades son la suma de una semana del menú. Si cambias el menú, actualiza también esta lista.
+const LISTS = {
+  alba: {
+    name: "Compra de Alba",
+    cats: [
+      ["Carne y pescado", [
+        ["Pechuga de pollo", "500 g", "Teriyaki (2 raciones) y quesadilla"],
+        ["Carne picada de vacuno 99%", "380 g", "Boloñesa (2 raciones) y cena del miércoles"],
+        ["Jamón serrano", "310 g", "Desayunos y revuelto del viernes"],
+        ["Pollo asado La Carloteña", "150 g", "Bowl del jueves"],
+        ["Salmón", "150 g", "Sábado"],
+        ["Bacalao", "200 g", "Domingo"]
+      ]],
+      ["Huevos y lácteos", [
+        ["Huevos", "9", null],
+        ["Claras de huevo", "550 ml", null],
+        ["Cottage", "480 g", null],
+        ["Yogur +Proteínas natural", "5 unidades", "4 para desayunos de oficina y 1 el domingo"],
+        ["Leche desnatada con proteínas", "1,5 l", "3 cafés al día en casa"],
+        ["Leche desnatada", "600 ml", "Cafés de martes y jueves en la oficina"],
+        ["Queso para untar light", "30 g", null],
+        ["Mozzarella", "30 g", null]
+      ]],
+      ["Fruta y verdura", [
+        ["Plátanos", "7", "Merienda; o manzanas o uvas"],
+        ["Uvas rojas", "200 g", "Desayunos de oficina"],
+        ["Aguacate", "200 g", "Unos 2 pequeños"],
+        ["Boniato o batata", "400 g", "Sábado y cena del miércoles"],
+        ["Verduras para saltear", "400 g", "Teriyaki"],
+        ["Zanahorias", "Al gusto", "Boloñesa, viernes y para picar"],
+        ["Ensalada", "Al gusto", null]
+      ]],
+      ["Despensa", [
+        ["Pan integral de espelta", "9 rebanadas", "306 g"],
+        ["Pasta de lentejas rojas", "140 g", null],
+        ["Gnocchi", "300 g", null],
+        ["Tomate frito", "200 g", null],
+        ["Patatas cocidas (tarro)", "300 g", null],
+        ["Arroz en vasito", "1", "125 g"],
+        ["Atún al natural", "1 lata", null],
+        ["Tortillas integrales", "2", null],
+        ["Wasa con avena", "2 láminas", null],
+        ["Nueces", "40 g", null],
+        ["Azúcar de coco", "20 g", null],
+        ["Salsa teriyaki", "40 ml", null],
+        ["Salsa de soja", "Al gusto", null],
+        ["Aceite de oliva", "10 g", null],
+        ["Café", "Al gusto", null]
+      ]],
+      ["Congelados", [
+        ["Edamame", "100 g", null],
+        ["Guisantes", "100 g", null]
+      ]],
+      ["Suplementos", [
+        ["Proteína en polvo", "210 g", "30 g al día"],
+        ["Creatina", "21-35 g", "3-5 g al día"]
+      ]]
+    ]
+  }
+};
+
+const $ = id => document.getElementById(id);
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+const q = new URLSearchParams(location.search).get("quien");
+const who = LISTS[q] ? q : Object.keys(LISTS)[0];
+const list = LISTS[who];
+const KEY = "compra-" + who;
+let checked = {};
+try { checked = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) {}
+function persist() { try { localStorage.setItem(KEY, JSON.stringify(checked)); } catch (e) {} }
+
+const total = list.cats.reduce((n, c) => n + c[1].length, 0);
+function updateSum() {
+  const done = Object.keys(checked).filter(k => checked[k]).length;
+  $("count").textContent = done;
+  $("bar").style.width = Math.round(done / total * 100) + "%";
+}
+
+function render() {
+  $("who").textContent = list.name;
+  document.title = list.name;
+  let html = "<h1>Lista de la compra</h1>" +
+    '<div class="sum"><div class="stat"><div><b id="count">0</b><small>de ' + total + ' productos</small></div>' +
+    '<button class="reset" id="reset">Desmarcar todo</button></div><div class="track"><i id="bar"></i></div></div>';
+  list.cats.forEach(c => {
+    html += '<section class="cat"><h2>' + esc(c[0]) + "</h2>";
+    c[1].forEach(it => {
+      const on = !!checked[it[0]];
+      html += '<label class="item' + (on ? " done" : "") + '"><input type="checkbox" data-k="' + esc(it[0]) + '"' + (on ? " checked" : "") + ">" +
+        '<span class="name">' + esc(it[0]) + (it[2] ? "<small>" + esc(it[2]) + "</small>" : "") + '</span><span class="qty">' + esc(it[1]) + "</span></label>";
+    });
+    html += "</section>";
+  });
+  html += '<div class="foot">Cantidades para una semana del menú. Lo marcado se guarda en este dispositivo.</div>';
+  $("main").innerHTML = html;
+  updateSum();
+}
+
+$("main").addEventListener("change", ev => {
+  const i = ev.target; if (!i.dataset || !i.dataset.k) return;
+  if (i.checked) checked[i.dataset.k] = true; else delete checked[i.dataset.k];
+  i.closest(".item").classList.toggle("done", i.checked);
+  persist(); updateSum();
+});
+$("main").addEventListener("click", ev => {
+  if (ev.target.id !== "reset") return;
+  checked = {}; persist(); render();
+});
+render();
+</script>
+</body>
+</html>

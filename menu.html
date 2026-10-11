@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#000000">
+<title>Menú semanal</title>
+<style>
+  :root { --bg: #000; --card: #1c1c1e; --line: #2c2c2e; --text: #fff; --muted: #8e8e93; --accent: #a6ff00; --red: #fa114f; --blue: #00d7ff; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 16px; line-height: 1.35; padding-bottom: 30px; }
+  header { padding: 16px 16px 4px; max-width: 640px; margin: 0 auto; display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .back { color: var(--accent); text-decoration: none; font-size: .9rem; font-weight: 600; }
+  .who { color: var(--muted); font-size: .85rem; font-weight: 600; }
+  nav { position: sticky; top: 0; z-index: 5; background: var(--bg); display: flex; gap: 5px; padding: 10px 16px; max-width: 640px; margin: 0 auto; border-bottom: 1px solid var(--line); }
+  nav button { flex: 1; min-width: 0; padding: 10px 2px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--muted); font-size: .85rem; font-weight: 600; cursor: pointer; }
+  nav button.today { border-color: var(--accent); color: var(--accent); }
+  nav button.on { background: var(--accent); border-color: var(--accent); color: #000; }
+  main { max-width: 640px; margin: 0 auto; padding: 12px 16px 14px; }
+  h1 { margin: 6px 0 12px; font-size: 2rem; letter-spacing: -.02em; }
+  .sum { background: var(--card); border-radius: 20px; padding: 16px; margin-bottom: 18px; }
+  .stat { display: flex; align-items: baseline; justify-content: space-between; }
+  .stat + .track + .stat { margin-top: 14px; }
+  .stat b { font-size: 1.5rem; letter-spacing: -.01em; }
+  .stat small { font-size: .85rem; font-weight: 600; margin-left: 3px; }
+  .stat span { color: var(--muted); font-size: .8rem; }
+  .track { height: 8px; border-radius: 4px; background: var(--line); margin-top: 6px; overflow: hidden; }
+  .track i { display: block; height: 100%; border-radius: 4px; }
+  .tip { color: var(--muted); font-size: .85rem; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .meal { background: var(--card); border-radius: 20px; margin-bottom: 12px; overflow: hidden; }
+  .top { display: flex; align-items: center; gap: 8px; padding: 14px 16px 0; }
+  .pill { font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: #000; padding: 3px 9px; border-radius: 20px; }
+  .time { color: var(--muted); font-size: .8rem; font-weight: 600; }
+  .kcal { margin-left: auto; font-size: .8rem; color: var(--muted); white-space: nowrap; }
+  .kcal b { color: var(--text); font-size: .95rem; }
+  .meal h2 { margin: 8px 16px 10px; font-size: 1.15rem; letter-spacing: -.01em; }
+  .ing { display: grid; grid-template-columns: 78px 1fr auto; column-gap: 12px; padding: 9px 16px; border-top: 1px solid var(--line); align-items: baseline; }
+  .ing b { text-align: right; font-weight: 700; white-space: nowrap; }
+  .ing .k { color: var(--muted); font-size: .82rem; white-space: nowrap; }
+  .ing.full { grid-template-columns: 1fr; color: #d1d1d6; }
+  .note { color: var(--muted); font-size: .84rem; padding: 10px 16px 14px; border-top: 1px solid var(--line); }
+  .foot { color: var(--muted); font-size: .8rem; text-align: center; margin-top: 16px; }
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="index.html">‹ Inicio</a>
+  <span class="who" id="who"></span>
+</header>
+<nav id="tabs"></nav>
+<main id="main"></main>
+
+<script>
+// ---------- ALIMENTOS: nombre, kcal y proteína por 100 g (o 100 ml) y de dónde sale el valor ----------
+// "E" = etiqueta del producto · "W" = ficha web del producto (fabricante, Open Food Facts o FatSecret) · "G" = valor genérico de tablas
+// Para corregir un valor, cambia solo esta línea: todos los platos y totales se recalculan.
+const FOODS = {
+  pan:        ["pan integral de espelta", 240, 12, "E"],
+  cottage:    ["cottage", 93, 13, "E"],
+  jamon:      ["jamón serrano", 247.8, 33.5, "E"],
+  claras:     ["claras de huevo", 42, 11, "E"],
+  huevo:      ["huevo", 141, 12.7, "E"],
+  gnocchi:    ["gnocchi (air fryer)", 174, 4.5, "E"],
+  pastaLent:  ["pasta de lentejas rojas (en seco)", 334, 26, "E"],
+  carne:      ["carne picada de vacuno 99%", 204, 19, "E"],
+  tomate:     ["tomate frito", 77, 1.5, "E"],
+  batata:     ["bastones de batata congelados", 163, 1.6, "E"],
+  patata:     ["patata cocida (tarro)", 53, 1.2, "E"],
+  polloAsado: ["pollo asado La Carloteña", 125, 26.8, "E"],
+  teriyaki:   ["salsa teriyaki", 188, 3.9, "E"],
+  yogur:      ["yogur +Proteínas natural", 52, 10, "E"],
+  wasa:       ["Wasa con avena", 370, 12.2, "E"],
+  quesoUntar: ["queso para untar light", 130, 9, "E"],
+  lecheProt:  ["leche desnatada con proteínas", 53, 6.4, "W"],
+  whey:       ["proteína Weider Isolate, con agua", 370, 83.3, "W"],
+  edamame:    ["edamame", 145, 12, "W"],
+  arroz:      ["arroz redondo en vasito", 126, 2.7, "W"],
+  atun:       ["atún claro al natural", 100, 23, "W"],
+  tortilla:   ["tortillas 100% integrales", 269, 9.3, "W"],
+  guisantes:  ["guisantes congelados", 83, 6, "W"],
+  nueces:     ["nueces", 716, 17, "W"],
+  mozzarella: ["mozzarella rallada", 283, 21, "W"],
+  leche:      ["leche desnatada", 35, 3.2, "W"],
+  verduras:   ["salteado de verduras", 31, 2, "W"],
+  pechuga:    ["pechuga de pollo", 110, 23, "G"],
+  salmon:     ["salmón", 200, 20, "G"],
+  bacalao:    ["bacalao al horno", 80, 18, "G"],
+  aguacate:   ["aguacate", 160, 2, "G"],
+  platano:    ["plátano", 89, 1.1, "G"],
+  uvas:       ["uvas rojas", 69, 0.7, "G"],
+  azucarCoco: ["azúcar de coco", 380, 0, "G"],
+  aceite:     ["aceite de oliva", 900, 0, "G"]
+};
+
+// ---------- PLATOS: nombre, ingredientes, nota y (opcional) total fijo ----------
+// Ingrediente: [alimento, gramos, texto de cantidad (si no son gramos), nombre a mostrar (si cambia)].
+// Con alimento null el ingrediente no se cuenta (verdura libre, texto).
+const DISHES = {
+  tostadas: ["Tostadas con jamón y cottage", [["pan", 68, null, "pan de espelta (2 rebanadas)"], ["jamon", 60], ["cottage", 100]], "Intercambiable con el revuelto."],
+  revuelto: ["Revuelto de huevos y claras", [["huevo", 110, "2", "huevos"], ["claras", 150, "150 ml"], ["jamon", 40], ["pan", 34, null, "pan de espelta (1 rebanada)"]], "Intercambiable con las tostadas."],
+  yogur: ["Yogur con azúcar de coco", [["yogur", 240, null, "yogur +Proteínas natural (2 unidades)"], ["azucarCoco", 10, null, "azúcar de coco (2 cucharaditas)"], ["nueces", 20], ["uvas", 100]], "Desayuno de oficina. En vez de uvas: 1 manzana."],
+  batido: ["Batido de proteína y fruta", [["whey", 30, null, "proteína Weider Isolate (1 cazo), con agua"], ["platano", 120, "1", "plátano"]], "Una hora antes de entrenar. En vez de plátano: 1 manzana grande o 150 g de uvas rojas."],
+  bolonesa: ["Boloñesa con pasta de lentejas", [["carne", 130], ["pastaLent", 70], ["tomate", 100], [null, 0, "Libre", "zanahoria rallada"]], null],
+  teriyaki: ["Pollo teriyaki con gnocchi", [["pechuga", 180], ["gnocchi", 150], ["teriyaki", 20, "20 ml"], ["verduras", 200]], null],
+  restaurante: ["Restaurante", [[null, 0, "", "Carne o pescado a la plancha o al horno"], [null, 0, "", "Su guarnición"], [null, 0, "", "Sin repetir pan"], [null, 0, "", "Sin postre, o compartido"]], "Calorías y proteína estimadas: no se pueden calcular.", [750, 40]],
+  salmon: ["Salmón con batata", [["salmon", 150], ["batata", 150, null, "bastones de batata congelados (air fryer)"], [null, 0, "Libre", "ensalada"]], null],
+  bacalao: ["Bacalao con patata y guisantes", [["bacalao", 200], ["patata", 300], ["guisantes", 100], ["aceite", 10]], null],
+  revAtun: ["Revuelto de atún", [["huevo", 110, "2", "huevos"], ["claras", 100, "100 ml"], ["atun", 60, "1 lata", "atún al natural (60 g escurrido)"], ["pan", 34, null, "pan de espelta (1 rebanada)"], ["aguacate", 75]], null],
+  quesadilla: ["Quesadilla de pollo", [["pechuga", 140], ["tortilla", 72, "2", "tortillas integrales (72 g)"], ["mozzarella", 30]], null],
+  carneBatata: ["Carne picada con batata", [["carne", 120], ["batata", 100], ["cottage", 80], ["aguacate", 50]], null],
+  bowl: ["Bowl de pollo y edamame", [["polloAsado", 150], ["edamame", 100], ["arroz", 125, null, "arroz redondo (1 vasito)"], [null, 0, "Al gusto", "salsa de soja"]], null],
+  revJamon: ["Revuelto con jamón", [["huevo", 55, "1", "huevo"], ["claras", 150, "150 ml"], ["jamon", 50], ["cottage", 100], [null, 0, "Libre", "zanahoria cruda"]], "Cena ligera para compensar el restaurante."],
+  wasa: ["Huevos con Wasa y aguacate", [["huevo", 110, "2", "huevos"], ["wasa", 35, "2", "Wasa con avena"], ["quesoUntar", 30], ["aguacate", 75], ["yogur", 120, "1", "yogur +Proteínas"]], null],
+  libre: ["Cena libre", [[null, 0, "", "Lo que quieras, sin pesar"], [null, 0, "", "Una sola comida"]], "No se cuenta en el total del día.", "libre"],
+  cafeProt: ["Cafés con leche", [["lecheProt", 300, "300 ml", "leche con proteínas (3 cafés de 100 ml)"]], "Un cuarto café suma unas 53 kcal y 6 g de proteína."],
+  cafeNormal: ["Cafés con leche", [["leche", 300, "300 ml", "leche desnatada (3 cafés de 100 ml)"]], "Un cuarto café suma unas 35 kcal y 3 g de proteína."]
+};
+
+// Momentos del día: nombre, hora y color de la etiqueta
+const MEALS = [["Desayuno", "10:00", "#ffd60a"], ["Comida", "14:30", "#a6ff00"], ["Merienda", "17:00", "#00d7ff"], ["Cena", "21:00", "#bf5af2"], ["Cafés", "todo el día", "#ff9f0a"]];
+const DAYS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+const TABS = ["L", "M", "X", "J", "V", "S", "D"];
+
+// ---------- MENÚS: una entrada por persona; cada día es [desayuno, comida, merienda, cena, cafés] ----------
+const MENUS = {
+  alba: {
+    name: "Menú de Alba",
+    kcalGoal: 1800, protGoal: 130,
+    days: [
+      ["tostadas", "bolonesa", "batido", "revAtun", "cafeProt"],
+      ["yogur", "bolonesa", "batido", "quesadilla", "cafeNormal"],
+      ["revuelto", "teriyaki", "batido", "carneBatata", "cafeProt"],
+      ["yogur", "teriyaki", "batido", "bowl", "cafeNormal"],
+      ["tostadas", "restaurante", "batido", "revJamon", "cafeProt"],
+      ["revuelto", "salmon", "batido", "libre", "cafeProt"],
+      ["tostadas", "bacalao", "batido", "wasa", "cafeProt"]
+    ],
+    dayNotes: {
+      0: "Cocina boloñesa doble: la segunda ración es el táper de mañana.",
+      1: "Comida de táper: la boloñesa de ayer.",
+      2: "Cocina pollo teriyaki doble: la segunda ración es el táper de mañana.",
+      3: "Comida de táper: el pollo teriyaki de ayer."
+    }
+  }
+};
+
+// ---------- CÁLCULO ----------
+function ingKcal(ing) { return ing[0] ? FOODS[ing[0]][1] * ing[1] / 100 : null; }
+function dishTotal(d) {            // devuelve [kcal, proteína] o null si no se cuenta
+  if (d[3] === "libre") return null;
+  if (Array.isArray(d[3])) return d[3];
+  let k = 0, p = 0;
+  d[1].forEach(ing => { if (ing[0]) { k += FOODS[ing[0]][1] * ing[1] / 100; p += FOODS[ing[0]][2] * ing[1] / 100; } });
+  return [Math.round(k), Math.round(p)];
+}
+
+// ---------- VISTA ----------
+const $ = id => document.getElementById(id);
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+const who = new URLSearchParams(location.search).get("quien");
+const menu = MENUS[who] || MENUS[Object.keys(MENUS)[0]];
+const todayIdx = (new Date().getDay() + 6) % 7;
+let current = todayIdx;
+
+function bar(value, goal, color) {
+  return '<div class="track"><i style="width:' + Math.min(100, Math.round(value / goal * 100)) + "%;background:" + color + '"></i></div>';
+}
+
+function render() {
+  $("who").textContent = menu.name;
+  document.title = menu.name;
+  $("tabs").innerHTML = TABS.map((l, i) =>
+    '<button data-i="' + i + '" class="' + (i === current ? "on" : "") + (i === todayIdx ? " today" : "") + '" aria-label="' + DAYS[i] + '">' + l + "</button>").join("");
+
+  const ids = menu.days[current];
+  let kcal = 0, prot = 0, free = false, cards = "";
+  ids.forEach((id, mi) => {
+    const d = DISHES[id], m = MEALS[mi], t = dishTotal(d);
+    if (t === null) free = true; else { kcal += t[0]; prot += t[1]; }
+    cards += '<section class="meal"><div class="top"><span class="pill" style="background:' + m[2] + '">' + m[0] + '</span><span class="time">' + m[1] + "</span>" +
+      '<span class="kcal">' + (t === null ? "sin contar" : "<b>" + t[0] + "</b> kcal · <b>" + t[1] + "</b> g P") + "</span></div>" +
+      "<h2>" + esc(d[0]) + "</h2>" +
+      d[1].map(ing => {
+        const qty = ing[2] != null ? ing[2] : ing[1] + " g";
+        const name = ing[3] != null ? ing[3] : FOODS[ing[0]][0];
+        if (qty === "") return '<div class="ing full">' + esc(name) + "</div>";
+        const k = ingKcal(ing);
+        return '<div class="ing"><b style="color:' + m[2] + '">' + esc(qty) + "</b><span>" + esc(name) + "</span>" +
+          '<span class="k">' + (k === null ? "" : (FOODS[ing[0]][3] === "G" ? "~" : "") + Math.round(k)) + "</span></div>";
+      }).join("") +
+      (d[2] ? '<div class="note">' + esc(d[2]) + "</div>" : "") + "</section>";
+  });
+  const note = menu.dayNotes && menu.dayNotes[current];
+  $("main").innerHTML = "<h1>" + DAYS[current] + (current === todayIdx ? ' <span style="color:var(--muted);font-size:1rem;font-weight:600;letter-spacing:0">hoy</span>' : "") + "</h1>" +
+    '<div class="sum">' +
+    '<div class="stat"><div><b style="color:var(--red)">' + kcal.toLocaleString("es-ES") + "</b><small>kcal" + (free ? " + cena libre" : "") + "</small></div><span>objetivo " + menu.kcalGoal.toLocaleString("es-ES") + "</span></div>" + bar(kcal, menu.kcalGoal, "var(--red)") +
+    '<div class="stat"><div><b style="color:var(--blue)">' + prot + "</b><small>g de proteína" + (free ? " + cena libre" : "") + "</small></div><span>mínimo " + menu.protGoal + "</span></div>" + bar(prot, menu.protGoal, "var(--blue)") +
+    (note ? '<div class="tip">' + esc(note) + "</div>" : "") + "</div>" +
+    cards + '<div class="foot">A la derecha, las kcal de cada ingrediente. El símbolo ~ indica un valor genérico (producto fresco, sin etiqueta).<br>Verdura libre en comidas y cenas, y zanahoria cruda para picar.</div>';
+  window.scrollTo(0, 0);
+}
+
+$("tabs").addEventListener("click", ev => {
+  const b = ev.target.closest("button"); if (!b) return;
+  current = Number(b.dataset.i); render();
+});
+render();
+</script>
+</body>
+</html>
