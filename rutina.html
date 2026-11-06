@@ -122,7 +122,14 @@
 <script>
 // ---------- RUTINA: edita aquí si cambias ejercicios ----------
 const ROUTINE = [
-  { tab: "Lun", name: "Torso A", focus: "Espalda y pecho", weekday: 1, ex: [
+  { tab: "Lun", name: "Pierna A", focus: "Fuerza y glúteo", weekday: 1, ex: [
+    ["Hip thrust", 4, "8-10"],
+    ["Peso muerto rumano", 3, "8-10"],
+    ["Sentadilla búlgara", 3, "8 por pierna"],
+    ["Gemelo en máquina", 3, "12-15"],
+    ["Abducción en máquina", 3, "15"],
+    ["Plancha lateral", 3, "30 s por lado"] ] },
+  { tab: "Mar", name: "Torso A", focus: "Espalda y pecho", weekday: 2, ex: [
     ["Jalón al pecho", 3, "8-12"],
     ["Press de pecho (máquina o banco)", 3, "8-12"],
     ["Remo sentado (polea o máquina)", 3, "10-12"],
@@ -130,12 +137,6 @@ const ROUTINE = [
     ["Elevaciones laterales con mancuernas", 3, "12-15"],
     ["Curl de bíceps con mancuernas", 2, "10-15"],
     ["Extensión de tríceps en polea", 2, "10-15"] ] },
-  { tab: "Mar", name: "Pierna A", focus: "Cuádriceps", weekday: 2, ex: [
-    ["Prensa (pies a media altura)", 3, "10-12"],
-    ["Hip thrust en máquina", 3, "12-15"],
-    ["Extensión de cuádriceps", 3, "12-15"],
-    ["Curl femoral sentado", 3, "10-15"],
-    ["Gemelo en máquina", 3, "12-15"] ] },
   { tab: "Jue", name: "Torso B", focus: "Hombros y brazos", weekday: 4, ex: [
     ["Press de hombro en máquina (agarre neutro)", 3, "8-12"],
     ["Remo en máquina con pecho apoyado", 3, "8-12"],
@@ -145,14 +146,17 @@ const ROUTINE = [
     ["Face pull", 2, "12-15"],
     ["Curl en polea", 3, "10-15"],
     ["Tríceps con cuerda", 3, "10-15"] ] },
-  { tab: "Vie", name: "Pierna B", focus: "Glúteo y femoral", weekday: 5, ex: [
-    ["Hip thrust", 3, "8-12"],
-    ["Sentadilla goblet a banco", 3, "10-12"],
-    ["Curl femoral tumbado", 3, "10-15"],
-    ["Abducción en máquina", 3, "12-15"],
-    ["Patada de glúteo (polea o máquina)", 2, "12-15"],
-    ["Crunch en máquina", 3, "10-15"] ] }
+  { tab: "Vie", name: "Pierna B", focus: "Unilateral y estabilidad", weekday: 5, ex: [
+    ["Step-up a cajón", 3, "10 por pierna"],
+    ["Prensa a una pierna", 3, "10 por pierna"],
+    ["Curl femoral tumbado", 3, "10-12"],
+    ["Puente de glúteo a una pierna", 3, "12 por pierna"],
+    ["Gemelo sentado (sóleo)", 3, "15"],
+    ["Elevación de tibial", 2, "15"],
+    ["Pallof press", 3, "10 por lado"] ] }
 ];
+// Versión de la rutina: si cambia el orden de los días, se vacían los borradores a medio rellenar
+const ROUTINE_VERSION = 2;
 
 // ---------- DATOS ----------
 const KEY = "rutina-log-v1";
@@ -161,6 +165,7 @@ try {
   const raw = localStorage.getItem(KEY);
   if (raw) data = Object.assign(data, JSON.parse(raw));
 } catch (e) {}
+if (data.routineVersion !== ROUTINE_VERSION) { data.drafts = {}; data.routineVersion = ROUTINE_VERSION; }
 function persist() {
   try { localStorage.setItem(KEY, JSON.stringify(data)); }
   catch (e) { toast("No se pudo guardar en este navegador"); }
@@ -322,7 +327,7 @@ $("main").addEventListener("change", ev => {
       const inc = JSON.parse(r.result);
       if (!inc || !Array.isArray(inc.sessions)) throw new Error();
       if (!confirm("Se sustituirán los datos actuales por los de la copia. ¿Continuar?")) return;
-      data = { sessions: inc.sessions, drafts: inc.drafts || {} };
+      data = { sessions: inc.sessions, drafts: inc.routineVersion === ROUTINE_VERSION ? (inc.drafts || {}) : {}, routineVersion: ROUTINE_VERSION };
       persist(); render(); toast("Copia importada");
     } catch (e) { toast("Archivo no válido"); }
   };
