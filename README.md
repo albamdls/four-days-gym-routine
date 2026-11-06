@@ -13,6 +13,7 @@ Está hecha con HTML, CSS y JavaScript en un único archivo (`index.html`), sin 
 - Botón "Guardar sesión" para cerrar el entrenamiento y pasarlo al historial.
 - Historial de sesiones, con opción de borrarlas.
 - Exportar e importar una copia de seguridad en JSON.
+- Calendario (`calendario.html`) con el plan de carrera para el reto de 5 km: marca las sesiones hechas, apunta minutos, km, molestia de rodilla y notas libres de cada día. El plan se reparte solo según la fecha de la carrera y la de inicio, que se cambian en "Ajustes". Las sesiones guardadas en la rutina marcan el gimnasio como hecho en el calendario.
 
 ## Dónde se guardan los datos
 
@@ -28,7 +29,7 @@ Para probarla en local basta con abrir `index.html` en el navegador.
 
 ## Cambiar la rutina
 
-Los ejercicios están en la constante `ROUTINE`, al principio del script de `index.html`. Cada ejercicio es una línea con nombre, número de series y rango de repeticiones:
+Los ejercicios están en la constante `ROUTINE`, al principio del script de `rutina.html`. Las sesiones de carrera están en `LEVELS` y `RACE_WEEK`, al principio del script de `calendario.html`. Cada ejercicio es una línea con nombre, número de series y rango de repeticiones:
 
 ```js
 ["Jalón al pecho", 3, "8-12"],

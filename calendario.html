@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/svg+xml" href="icono.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="icono-192.png">
+<link rel="apple-touch-icon" href="icono-180.png">
+<meta name="apple-mobile-web-app-title" content="A por ello">
+<title>Calendario</title>
+<style>
+  :root {
+    --bg: #000; --card: #1c1c1e; --line: #2c2c2e; --text: #fff; --muted: #8e8e93;
+    --accent: #a6ff00; --red: #fa114f; --blue: #00d7ff; --orange: #ff9f0a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 16px; line-height: 1.4; padding-bottom: 40px; }
+  header { padding: 16px 16px 8px; max-width: 640px; margin: 0 auto; }
+  .back { color: var(--accent); text-decoration: none; font-size: .9rem; font-weight: 600; }
+  .hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-top: 12px; }
+  .eyebrow { color: var(--muted); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+  .hero h1 { margin: 4px 0 0; font-size: 2.1rem; line-height: 1.05; letter-spacing: -.03em; }
+  .hero h1 span { background: linear-gradient(90deg, var(--orange), var(--red)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero .ic { flex: 0 0 48px; height: 48px; border-radius: 14px; background: var(--orange); color: #000; display: flex; align-items: center; justify-content: center; }
+  svg { display: block; }
+  main { max-width: 640px; margin: 0 auto; padding: 10px 16px; }
+  .card { background: var(--card); border-radius: 22px; padding: 16px; margin-bottom: 12px; border: 1px solid transparent; }
+  .card h2 { margin: 0 0 10px; font-size: 1.1rem; letter-spacing: -.01em; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+  .stat { background: var(--card); border-radius: 18px; padding: 12px; text-align: center; }
+  .stat b { display: block; font-size: 1.5rem; letter-spacing: -.02em; }
+  .stat span { color: var(--muted); font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+  .stat.race b { color: var(--red); }
+  .month { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .month b { font-size: 1.1rem; }
+  .month button { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font-size: 1.2rem; cursor: pointer; }
+  .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .wd { color: var(--muted); font-size: .72rem; font-weight: 700; text-align: center; padding: 4px 0; }
+  .day { position: relative; aspect-ratio: 1 / 1.05; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--text); padding: 4px 2px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: space-between; font: inherit; }
+  .day.out { opacity: .3; }
+  .day .n { font-size: .9rem; font-weight: 600; }
+  .day.today .n { color: #000; background: var(--accent); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
+  .day.sel { border-color: var(--accent); }
+  .day.race { border-color: var(--red); }
+  .dots { display: flex; gap: 3px; min-height: 8px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid var(--c); }
+  .dot.ok { background: var(--c); }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; color: var(--muted); font-size: .78rem; }
+  .legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--c); margin-right: 5px; }
+  .item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .item:first-of-type { border-top: 0; }
+  .item .tag { flex: 0 0 10px; height: 10px; border-radius: 50%; background: var(--c); }
+  .item div { flex: 1; }
+  .item small { display: block; color: var(--muted); font-size: .8rem; }
+  .check { flex: 0 0 auto; padding: 8px 12px; border-radius: 12px; border: 1px solid var(--c); background: transparent; color: var(--c); font-weight: 700; font-size: .85rem; cursor: pointer; }
+  .check.on { background: var(--c); color: #000; }
+  label { display: block; color: var(--muted); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; margin: 12px 0 6px; }
+  .fields { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  input, textarea { width: 100%; padding: 10px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font: inherit; font-size: 16px; }
+  textarea { min-height: 90px; resize: vertical; }
+  input:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+  .hint { color: var(--muted); font-size: .82rem; margin-top: 6px; }
+  .row { display: flex; gap: 8px; margin-top: 12px; }
+  .btn { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font: inherit; font-weight: 600; cursor: pointer; }
+  .tip { background: linear-gradient(135deg, #2b1a00, #2b0612); border: 1px solid #3d2a10; }
+  .tip p { margin: 0; font-size: .92rem; }
+  #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #06281a; padding: 10px 18px; border-radius: 20px; font-weight: 700; font-size: .9rem; opacity: 0; transition: opacity .25s; pointer-events: none; }
+  #toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="index.html">‹ Inicio</a>
+  <div class="hero">
+    <div><div class="eyebrow">Reto 5 km</div><h1>Mi <span>calendario</span></h1></div>
+    <span class="ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></span>
+  </div>
+</header>
+
+<main>
+  <div class="stats">
+    <div class="stat race"><b id="sDays">—</b><span>Días para la carrera</span></div>
+    <div class="stat"><b id="sKm">0</b><span>Km corridos</span></div>
+    <div class="stat"><b id="sRuns">0</b><span>Salidas</span></div>
+  </div>
+
+  <div class="card">
+    <div class="month">
+      <button id="prev" aria-label="Mes anterior">‹</button>
+      <b id="monthName"></b>
+      <button id="next" aria-label="Mes siguiente">›</button>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="legend">
+      <span style="--c:var(--blue)"><i></i>Carrera</span>
+      <span style="--c:var(--accent)"><i></i>Gimnasio</span>
+      <span style="--c:var(--orange)"><i></i>Nota</span>
+      <span style="--c:var(--red)"><i></i>Día de la carrera</span>
+    </div>
+  </div>
+
+  <div class="card" id="detail"></div>
+
+  <div class="card tip">
+    <p><b>Recuerda:</b> corre a ritmo de conversación. Si la rodilla molesta más de 3/10 al día siguiente, repite la semana en vez de avanzar.</p>
+  </div>
+
+  <div class="card">
+    <h2>Ajustes</h2>
+    <label for="raceDate">Fecha de la carrera</label>
+    <input type="date" id="raceDate">
+    <label for="startDate">Inicio del plan (lunes)</label>
+    <input type="date" id="startDate">
+    <div class="hint">El plan se reparte solo según estas dos fechas: la semana anterior a la carrera siempre es la más dura.</div>
+    <div class="row">
+      <button class="btn" id="exp">Exportar copia</button>
+      <button class="btn" id="imp">Importar copia</button>
+      <input type="file" id="file" accept="application/json,.json" hidden>
+    </div>
+  </div>
+</main>
+<div id="toast"></div>
+
+<script>
+// ---------- PLAN: edita aquí si cambias las sesiones ----------
+// Cada nivel: [lunes suave, miércoles calidad, viernes suave]
+const LEVELS = [
+  ["6 × (1' correr + 1' andar)", "10 × (1' correr + 1' andar)", "6 × (1' correr + 1' andar)"],
+  ["6 × (2' correr + 1' andar)", "7 × (2' correr + 1' andar)", "6 × (2' correr + 1' andar)"],
+  ["4 × (3' correr + 1' andar)", "5 × (4' correr + 1' andar)", "4 × (3' correr + 1' andar)"],
+  ["3 × (5' correr + 1' andar)", "3 × (8' correr + 1' andar)", "3 × (5' correr + 1' andar)"],
+  ["2 × (8' correr + 1' andar)", "25' seguidos", "2 × (8' correr + 1' andar)"]
+];
+const RACE_WEEK = ["15' suaves", "15' suaves + 3 aceleraciones cortas", "Descanso o 10' muy suaves"];
+const GYM = { 1: ["Pierna A", "Fuerza y glúteo"], 2: ["Torso A", "Espalda y pecho"], 4: ["Torso B", "Hombros y brazos"], 5: ["Pierna B", "Unilateral y estabilidad"] };
+const RUN_DAYS = { 1: [0, "Carrera suave · mañana"], 3: [1, "Sesión de calidad · mañana"], 5: [2, "Carrera suave · mañana"] };
+
+// ---------- DATOS ----------
+const KEY = "calendario-v1";
+let data = { settings: { raceDate: "", startDate: "2026-11-09" }, days: {} };
+try {
+  const raw = localStorage.getItem(KEY);
+  if (raw) { const p = JSON.parse(raw); data.settings = Object.assign(data.settings, p.settings || {}); data.days = p.days || {}; }
+} catch (e) {}
+function persist() {
+  try { localStorage.setItem(KEY, JSON.stringify(data)); }
+  catch (e) { toast("No se pudo guardar en este navegador"); }
+}
+// Sesiones guardadas en la página de la rutina: marcan el gimnasio como hecho
+let gymDates = {};
+try {
+  const r = JSON.parse(localStorage.getItem("rutina-log-v1") || "{}");
+  (r.sessions || []).forEach(s => { gymDates[s.date] = s.dayName; });
+} catch (e) {}
+
+// ---------- UTILIDADES ----------
+const $ = id => document.getElementById(id);
+function iso(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+function parse(s) { const p = s.split("-").map(Number); return new Date(p[0], p[1] - 1, p[2]); }
+function daysBetween(a, b) { return Math.round((Date.UTC(b.getFullYear(), b.getMonth(), b.getDate()) - Date.UTC(a.getFullYear(), a.getMonth(), a.getDate())) / 86400000); }
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+function num(s) { const n = parseFloat(String(s || "").replace(",", ".")); return isNaN(n) ? 0 : n; }
+let toastTimer;
+function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 1800); }
+
+// ---------- PLAN DEL DÍA ----------
+function planFor(date) {
+  const items = [];
+  const wd = date.getDay();
+  const key = iso(date);
+  const start = parse(data.settings.startDate || "2026-11-09");
+  const race = data.settings.raceDate ? parse(data.settings.raceDate) : null;
+  const w = Math.floor(daysBetween(start, date) / 7);
+  const raceW = race ? Math.floor(daysBetween(start, race) / 7) : LEVELS.length;
+  const isRaceDay = race && key === data.settings.raceDate;
+  const afterRace = race && daysBetween(race, date) > 0;
+
+  if (isRaceDay) items.push({ id: "race", c: "var(--red)", title: "🏁 Carrera de 5 km", sub: "¡A por ello! Caminar también vale." });
+  else if (w >= 0 && !afterRace && RUN_DAYS[wd]) {
+    const [slot, label] = RUN_DAYS[wd];
+    let txt = null;
+    if (w === raceW) txt = RACE_WEEK[slot];
+    else if (w < raceW) txt = LEVELS[Math.max(0, LEVELS.length - (raceW - w))][slot];
+    if (txt) items.push({ id: "run", c: "var(--blue)", title: label, sub: txt });
+  }
+  if (GYM[wd] && !isRaceDay) {
+    const raceWeek = race && w === raceW && !afterRace;
+    items.push({ id: "gym", c: "var(--accent)", title: GYM[wd][0] + " · tarde", sub: GYM[wd][1] + (raceWeek && GYM[wd][0].startsWith("Pierna") ? " · semana de carrera: mitad de series y poco peso" : "") });
+  }
+  return items;
+}
+function isDone(key, id) {
+  if (id === "gym" && gymDates[key]) return true;
+  const d = data.days[key];
+  return !!(d && d.done && d.done[id]);
+}
+
+// ---------- VISTAS ----------
+const now = new Date();
+let view = new Date(now.getFullYear(), now.getMonth(), 1);
+let selected = iso(now);
+
+function renderStats() {
+  let km = 0, runs = 0;
+  Object.keys(data.days).forEach(k => {
+    const d = data.days[k];
+    const k1 = num(d.km);
+    km += k1;
+    if (k1 > 0 || num(d.min) > 0 || (d.done && (d.done.run || d.done.race))) runs++;
+  });
+  $("sKm").textContent = km.toLocaleString("es-ES", { maximumFractionDigits: 1 });
+  $("sRuns").textContent = runs;
+  if (data.settings.raceDate) {
+    const n = daysBetween(now, parse(data.settings.raceDate));
+    $("sDays").textContent = n > 0 ? n : n === 0 ? "¡Hoy!" : "✓";
+  } else $("sDays").textContent = "—";
+}
+
+function renderMonth() {
+  const mn = view.toLocaleDateString("es-ES", { month: "long", year: "numeric" });
+  $("monthName").textContent = mn.charAt(0).toUpperCase() + mn.slice(1);
+  let html = ["L", "M", "X", "J", "V", "S", "D"].map(d => '<div class="wd">' + d + "</div>").join("");
+  const first = new Date(view);
+  first.setDate(1 - ((first.getDay() + 6) % 7));
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(first.getFullYear(), first.getMonth(), first.getDate() + i);
+    if (i === 35 && d.getMonth() !== view.getMonth()) break;
+    const key = iso(d);
+    const items = planFor(d);
+    const info = data.days[key] || {};
+    let dots = items.map(it => '<span class="dot' + (isDone(key, it.id) ? " ok" : "") + '" style="--c:' + it.c + '"></span>').join("");
+    if (!items.some(it => it.id === "run" || it.id === "race") && (num(info.km) > 0 || num(info.min) > 0)) dots += '<span class="dot ok" style="--c:var(--blue)"></span>';
+    if (info.note) dots += '<span class="dot ok" style="--c:var(--orange)"></span>';
+    const cls = ["day"];
+    if (d.getMonth() !== view.getMonth()) cls.push("out");
+    if (key === iso(now)) cls.push("today");
+    if (key === selected) cls.push("sel");
+    if (key === data.settings.raceDate) cls.push("race");
+    html += '<button class="' + cls.join(" ") + '" data-k="' + key + '"><span class="n">' + d.getDate() + '</span><span class="dots">' + dots + "</span></button>";
+  }
+  $("grid").innerHTML = html;
+}
+
+function renderDetail() {
+  const d = parse(selected);
+  const info = data.days[selected] || {};
+  const items = planFor(d);
+  const title = d.toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" });
+  let html = "<h2>" + esc(title.charAt(0).toUpperCase() + title.slice(1)) + "</h2>";
+  if (!items.length) html += '<div class="hint" style="margin:0 0 4px">Descanso. Pasea, recupera y come bien.</div>';
+  items.forEach(it => {
+    const done = isDone(selected, it.id);
+    const auto = it.id === "gym" && gymDates[selected];
+    html += '<div class="item" style="--c:' + it.c + '"><span class="tag"></span><div><b>' + esc(it.title) + "</b><small>" + esc(it.sub) + (auto ? " · registrado en la rutina" : "") + "</small></div>" +
+      '<button class="check' + (done ? " on" : "") + '" data-done="' + it.id + '"' + (auto ? " disabled" : "") + ">" + (done ? "Hecho ✓" : "Hecho") + "</button></div>";
+  });
+  html += '<label>Carrera de hoy</label><div class="fields">' +
+    '<input type="text" inputmode="numeric" data-f="min" placeholder="Minutos" value="' + esc(info.min || "") + '" aria-label="Minutos">' +
+    '<input type="text" inputmode="decimal" data-f="km" placeholder="Km" value="' + esc(info.km || "") + '" aria-label="Kilómetros">' +
+    '<input type="text" inputmode="numeric" data-f="knee" placeholder="Rodilla 0-10" value="' + esc(info.knee || "") + '" aria-label="Molestia de rodilla de 0 a 10">' +
+    "</div>";
+  const pace = num(info.km) > 0 && num(info.min) > 0 ? num(info.min) / num(info.km) : 0;
+  html += '<div class="hint" id="pace">' + (pace ? "Ritmo: " + Math.floor(pace) + ":" + String(Math.round((pace % 1) * 60)).padStart(2, "0") + " min/km" : "Rellena minutos y km para ver tu ritmo.") + "</div>";
+  html += '<label for="note">Notas</label><textarea id="note" data-f="note" placeholder="Cómo te has sentido, qué has comido, lo que quieras…">' + esc(info.note || "") + "</textarea>";
+  $("detail").innerHTML = html;
+}
+
+function render() { renderStats(); renderMonth(); renderDetail(); }
+
+// ---------- EVENTOS ----------
+$("prev").addEventListener("click", () => { view = new Date(view.getFullYear(), view.getMonth() - 1, 1); renderMonth(); });
+$("next").addEventListener("click", () => { view = new Date(view.getFullYear(), view.getMonth() + 1, 1); renderMonth(); });
+$("grid").addEventListener("click", ev => {
+  const b = ev.target.closest(".day"); if (!b) return;
+  selected = b.dataset.k;
+  const d = parse(selected);
+  if (d.getMonth() !== view.getMonth()) view = new Date(d.getFullYear(), d.getMonth(), 1);
+  renderMonth(); renderDetail();
+  $("detail").scrollIntoView({ behavior: "smooth", block: "start" });
+});
+$("detail").addEventListener("click", ev => {
+  const b = ev.target.closest("[data-done]"); if (!b || b.disabled) return;
+  const d = data.days[selected] = data.days[selected] || {};
+  d.done = d.done || {};
+  d.done[b.dataset.done] = !d.done[b.dataset.done];
+  persist(); render();
+  if (d.done[b.dataset.done]) toast("¡Bien hecho!");
+});
+$("detail").addEventListener("input", ev => {
+  const f = ev.target.dataset && ev.target.dataset.f; if (!f) return;
+  const d = data.days[selected] = data.days[selected] || {};
+  d[f] = ev.target.value.trim() ? ev.target.value : "";
+  persist(); renderStats(); renderMonth();
+  if (f === "km" || f === "min") {
+    const pace = num(d.km) > 0 && num(d.min) > 0 ? num(d.min) / num(d.km) : 0;
+    $("pace").textContent = pace ? "Ritmo: " + Math.floor(pace) + ":" + String(Math.round((pace % 1) * 60)).padStart(2, "0") + " min/km" : "Rellena minutos y km para ver tu ritmo.";
+  }
+});
+$("raceDate").addEventListener("change", e => { data.settings.raceDate = e.target.value; persist(); render(); toast("Fecha de la carrera guardada"); });
+$("startDate").addEventListener("change", e => { if (e.target.value) { data.settings.startDate = e.target.value; persist(); render(); } });
+$("exp").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "calendario-" + iso(now) + ".json";
+  document.body.appendChild(a); a.click(); a.remove();
+});
+$("imp").addEventListener("click", () => $("file").click());
+$("file").addEventListener("change", ev => {
+  if (!ev.target.files[0]) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const inc = JSON.parse(r.result);
+      if (!inc || typeof inc.days !== "object") throw new Error();
+      if (!confirm("Se sustituirán los datos del calendario por los de la copia. ¿Continuar?")) return;
+      data = { settings: Object.assign({ raceDate: "", startDate: "2026-11-09" }, inc.settings || {}), days: inc.days };
+      persist(); syncSettings(); render(); toast("Copia importada");
+    } catch (e) { toast("Archivo no válido"); }
+  };
+  r.readAsText(ev.target.files[0]);
+});
+function syncSettings() { $("raceDate").value = data.settings.raceDate || ""; $("startDate").value = data.settings.startDate || ""; }
+
+syncSettings();
+render();
+</script>
+</body>
+</html>
