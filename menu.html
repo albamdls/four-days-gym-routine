@@ -120,7 +120,7 @@ function render(keepScroll) {
   $("badge").style.background = who === "raquel" ? "#bf5af2" : "var(--red)";
   document.title = "Menú de " + P.name;
   $("weekLabel").innerHTML = weekLabel(offset) + "<small>" + (offset === 0 ? "esta semana" : offset === 1 ? "la semana que viene" : offset === -1 ? "la semana pasada" : "") +
-    (storedWeek(who, offset) ? (offset >= -1 && offset <= 1 ? " · " : "") + "con cambios" : "") + "</small>";
+    (offset >= -1 && offset <= 1 ? " · " : "") + (storedWeek(who, offset) ? "con cambios" : "menú fijo") + "</small>";
   $("tabs").innerHTML = TABS.map((l, i) =>
     '<button data-i="' + i + '" class="' + (i === current ? "on" : "") + (offset === 0 && i === todayIdx ? " today" : "") + '" aria-label="' + DAYS[i] + '">' + l + "</button>").join("");
 
@@ -158,7 +158,7 @@ function render(keepScroll) {
     '<div class="stat"><div><b style="color:var(--red)">' + kcal + "</b><small>kcal</small></div><span>objetivo " + P.kcalGoal + "</span></div>" + bar(kcal, P.kcalGoal, "var(--red)") +
     '<div class="stat"><div><b style="color:var(--blue)">' + prot + "</b><small>g de proteína</small></div><span>mínimo " + P.protGoal + "</span></div>" + bar(prot, P.protGoal, "var(--blue)") +
     tip + "</div>" + cards +
-    '<div class="actions"><button id="copy">Copiar la semana anterior</button><button id="reset">Volver al menú base</button></div>' +
+    '<div class="actions"><button id="copy">Copiar la semana anterior</button><button id="reset">Volver al menú fijo</button></div>' +
     '<div class="foot">A la derecha, las kcal de cada ingrediente; ~ indica un valor genérico (producto fresco, sin etiqueta).<br>Verdura libre en comidas y cenas. Los cambios se guardan en este dispositivo.</div>';
   if (!keepScroll) window.scrollTo(0, 0);
 }
@@ -207,7 +207,7 @@ $("main").addEventListener("click", ev => {
     if (!confirm("¿Copiar el menú de la semana anterior en esta semana?")) return;
     days = getWeek(who, offset - 1); setWeek(who, offset, days); render(true);
   } else if (t.id === "reset") {
-    if (!confirm("¿Volver al menú base en esta semana? Se pierden los cambios.")) return;
+    if (!confirm("¿Volver al menú fijo en esta semana? Se pierden los cambios.")) return;
     setWeek(who, offset, null); days = getWeek(who, offset); render(true);
   }
 });

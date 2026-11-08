@@ -29,6 +29,7 @@ const FOODS = {
   aguacate:    ["aguacate", 160, 2, "G", "Fruta y verdura"],
   platano:     ["plátanos", 89, 1.1, "G", "Fruta y verdura", [120, "plátano", "plátanos"]],
   uvas:        ["uvas rojas", 69, 0.7, "G", "Fruta y verdura"],
+  manzana:     ["manzanas", 52, 0.3, "G", "Fruta y verdura", [180, "manzana", "manzanas"]],
   pan:         ["pan integral de espelta", 240, 12, "E", "Despensa", [34, "rebanada", "rebanadas"]],
   gnocchi:     ["gnocchi", 174, 4.5, "E", "Despensa"],
   pastaLent:   ["pasta de lentejas rojas (en seco)", 334, 26, "E", "Despensa"],
@@ -68,6 +69,8 @@ const DISHES = {
 
   // Meriendas
   batido:      { n: "Batido de proteína y fruta", t: "m", i: [["whey", 30, null, "proteína Weider Isolate (1 cazo), con agua"], ["platano", 120, "1", "plátano"]], note: "Antes de entrenar. En vez de plátano: 1 manzana grande o 150 g de uvas rojas." },
+  yogurManzana:{ n: "Yogur +Proteínas con manzana", t: "m", i: [["yogur", 240, null, "yogur +Proteínas natural (2 unidades)"], ["manzana", 180, "1", "manzana"]], note: "Antes del gimnasio. Cuando tengas la proteína en polvo, puedes cambiarlo por el batido." },
+  batidoManzana:{ n: "Batido de proteína con manzana", t: "m", i: [["whey", 30, null, "proteína Weider Isolate (1 cazo), con agua o leche"], ["manzana", 180, "1", "manzana"]], note: "Antes del gimnasio." },
   yogurFruta:  { n: "Yogur +Proteínas con plátano", t: "m", i: [["yogur", 240, null, "yogur +Proteínas natural (2 unidades)"], ["platano", 120, "1", "plátano"]], note: "Alternativa sin proteína en polvo." },
 
   // Comidas y cenas · Pollo
@@ -140,14 +143,16 @@ const PEOPLE = {
   alba: {
     name: "Alba", kcalGoal: 1800, protGoal: 130,
     slots: [["Desayuno", "10:00", "d"], ["Comida", "14:30", "p"], ["Merienda", "17:00", "m"], ["Cena", "21:00", "p"], ["Cafés", "todo el día", "c"]],
+    // Menú fijo. Lunes, miércoles y viernes se corre antes de las 8 (solo con un café) y el desayuno
+    // de las 10 lleva pan para recuperar. Lunes y miércoles se cocina también el táper del día siguiente.
     base: [
-      ["tostadas", "bolonesa", "batido", "revAtun", "cafeProt"],
-      ["yogur", "bolonesa", "batido", "quesadilla", "cafeNormal"],
-      ["revuelto", "teriyaki", "batido", "carneBatata", "cafeProt"],
-      ["yogur", "teriyaki", "batido", "poke", "cafeNormal"],
-      ["tostadas", "restaurante", "batido", "revJamon", "cafeProt"],
-      ["revuelto", "salmon", "batido", "libre", "cafeProt"],
-      ["tostadas", "bacalao", "batido", "wasa", "cafeProt"]
+      ["tostadas", "bolonesa", "yogurManzana", "revAtun", "cafeProt"],
+      ["yogur", "bolonesa", "yogurManzana", "quesadilla", "cafeNormal"],
+      ["revuelto", "teriyaki", "yogurManzana", "carneBatata", "cafeProt"],
+      ["yogur", "teriyaki", "yogurManzana", "poke", "cafeNormal"],
+      ["tostadas", "restaurante", "yogurManzana", "revJamon", "cafeProt"],
+      ["revuelto", "salmon", "yogurManzana", "libre", "cafeProt"],
+      ["tostadas", "bacalao", "yogurManzana", "wasa", "cafeProt"]
     ]
   },
   raquel: {
