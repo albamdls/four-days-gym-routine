@@ -83,6 +83,15 @@
     font-weight: 700; font-size: .9rem; opacity: 0; transition: opacity .25s; pointer-events: none;
   }
   #toast.show { opacity: 1; }
+  details.warm summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 1.05rem; }
+  details.warm summary::-webkit-details-marker { display: none; }
+  details.warm summary small { color: #ff9f0a; font-size: .85rem; font-weight: 600; }
+  details.warm summary small::after { content: " ›"; display: inline-block; margin-left: 4px; transition: transform .2s; }
+  details.warm[open] summary small::after { transform: rotate(90deg); }
+  details.warm ul { list-style: none; margin: 12px 0 0; padding: 0; }
+  details.warm li { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-top: 1px solid var(--line); font-size: .92rem; }
+  details.warm li b { color: #ff9f0a; white-space: nowrap; font-weight: 600; }
+  details.warm .last { margin: 10px 0 0; }
 
   /* Cabecera con el estilo del inicio */
   header { display: block; padding: 16px 16px 8px; max-width: 640px; margin: 0 auto; }
@@ -155,6 +164,40 @@ const ROUTINE = [
     ["Curl en polea", 3, "10-15"],
     ["Tríceps con cuerda", 3, "10-15"] ] }
 ];
+
+// ---------- CALENTAMIENTOS: [ejercicio, cantidad] ----------
+const WARMUPS = {
+  torso: { time: "8-10 min", ex: [
+    ["Bici o elíptica suave", "5 min"],
+    ["Círculos de brazos, adelante y atrás", "10 + 10"],
+    ["Aperturas con banda elástica (band pull-apart)", "15"],
+    ["Rotación de tronco a cuatro patas", "8 por lado"],
+    ["Pasar la banda o un palo por encima de la cabeza (dislocaciones)", "10"],
+    ["Series de aproximación del primer ejercicio, con la mitad del peso", "1-2 × 10"] ] },
+  pierna: { time: "10 min", ex: [
+    ["Bici estática suave", "5 min"],
+    ["Puente de glúteo en el suelo", "15"],
+    ["Pasos laterales con banda en las rodillas", "10 por lado"],
+    ["Balanceo de pierna adelante-atrás y de lado", "10 + 10 por pierna"],
+    ["Sentadilla sin peso hasta un banco", "10"],
+    ["Elevación de gemelos", "15"],
+    ["Series de aproximación del primer ejercicio, con la mitad del peso", "1-2 × 10"] ] },
+  correr: { time: "6-8 min", ex: [
+    ["Andar a paso rápido", "3-5 min"],
+    ["Círculos de cadera", "10 por lado"],
+    ["Balanceo de pierna adelante-atrás", "10 por pierna"],
+    ["Elevación de gemelos", "15"],
+    ["Rodillas arriba suave, avanzando", "2 × 15 m"],
+    ["Talones al glúteo suave, avanzando", "2 × 15 m"],
+    ["Zancadas cortas caminando (si molesta la rodilla, pasos más cortos)", "6 por pierna"] ],
+    note: "Empieza a correr muy despacio los primeros 2-3 minutos. El día de la carrera haz este mismo calentamiento unos 15 minutos antes de la salida." }
+};
+function warmupCard(kind) {
+  const w = WARMUPS[kind];
+  return '<details class="card warm"><summary><span>🔥 Calentamiento</span><small>' + w.time + "</small></summary><ul>" +
+    w.ex.map(e => "<li><span>" + esc(e[0]) + "</span><b>" + esc(e[1]) + "</b></li>").join("") + "</ul>" +
+    (w.note ? '<div class="last">' + esc(w.note) + "</div>" : "") + "</details>";
+}
 
 // ---------- PLAN DE CARRERA: 5 km el domingo 13 de diciembre ----------
 // [fecha, tipo, qué hacer]. Tipo: "s" suave, "q" calidad, "d" descanso, "r" carrera
@@ -249,7 +292,7 @@ function renderDay() {
   const draft = data.drafts[ROUTINE[current].name] || {};
   $("subtitle").textContent = day.name + " · " + day.focus;
   $("bar").style.display = "";
-  let html = "";
+  let html = warmupCard(day.name.startsWith("Torso") ? "torso" : "pierna");
   day.ex.forEach((e, ei) => {
     const name = e[0], nSets = e[1], reps = e[2];
     const last = lastFor(name);
@@ -295,7 +338,7 @@ function renderRuns() {
   const total = RACE_PLAN.filter(r => r[1] !== "d").length;
   const days = Math.round((new Date("2026-12-13T12:00") - new Date(t + "T12:00")) / 86400000);
   let html = '<div class="card"><h2>' + (days > 0 ? "Faltan " + days + " días" : days === 0 ? "¡Hoy es la carrera!" : "Carrera hecha 🏁") + '</h2>' +
-    '<div class="last">Salidas hechas: <b>' + done + " de " + total + "</b>. Corre a ritmo de conversación. Si una semana te cuesta o la rodilla molesta más de un 3/10 al día siguiente, repítela en vez de avanzar.</div></div>";
+    '<div class="last">Salidas hechas: <b>' + done + " de " + total + "</b>. Corre a ritmo de conversación. Si una semana te cuesta o la rodilla molesta más de un 3/10 al día siguiente, repítela en vez de avanzar.</div></div>" + warmupCard("correr");
   let week = "";
   RACE_PLAN.forEach(r => {
     const d = new Date(r[0] + "T12:00");
