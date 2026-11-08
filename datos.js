@@ -150,7 +150,7 @@ const PEOPLE = {
       ["yogur", "bolonesa", "yogurManzana", "quesadilla", "cafeNormal"],
       ["revuelto", "teriyaki", "yogurManzana", "carneBatata", "cafeProt"],
       ["yogur", "teriyaki", "yogurManzana", "poke", "cafeNormal"],
-      ["tostadas", "contramusloArroz", "yogurManzana", "revJamon", "cafeProt"],
+      ["tostadas", "contramusloGnocchi", "yogurManzana", "revAtun", "cafeProt"],
       ["revuelto", "salmon", "yogurManzana", "libre", "cafeProt"],
       ["tostadas", "bacalao", "yogurManzana", "wasa", "cafeProt"]
     ]
