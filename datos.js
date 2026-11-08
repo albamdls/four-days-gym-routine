@@ -43,6 +43,9 @@ const FOODS = {
   nueces:      ["nueces", 716, 17, "W", "Despensa"],
   azucarCoco:  ["azúcar de coco", 380, 0, "G", "Despensa"],
   nesquik:     ["Nesquik", 380, 5, "G", "Despensa"],
+  colacao:     ["Cola Cao", 376, 6.8, "G", "Despensa"],
+  mantequilla: ["mantequilla", 717, 0.9, "G", "Huevos y lácteos"],
+  mermelada:   ["mermelada", 250, 0.4, "G", "Despensa"],
   teriyaki:    ["salsa teriyaki", 188, 3.9, "E", "Despensa", "ml"],
   aceite:      ["aceite de oliva", 900, 0, "G", "Despensa"],
   batata:      ["bastones de batata congelados", 163, 1.6, "E", "Congelados"],
@@ -67,10 +70,13 @@ const DISHES = {
   tostAguacate:{ n: "Tostadas con jamón y aguacate", t: "d", i: [["pan", 68, null, "pan de espelta (2 rebanadas)"], ["jamon", 40], ["aguacate", 40], ["lecheSemi", 200, "200 ml"], ["nesquik", 10, null, "Nesquik (2 cucharaditas)"]] },
   tostHuevo:   { n: "Tostadas con aguacate y huevo", t: "d", i: [["pan", 68, null, "pan de espelta (2 rebanadas)"], ["aguacate", 60], ["huevo", 55, "1", "huevo"], ["lecheSemi", 200, "200 ml"], ["nesquik", 10, null, "Nesquik (2 cucharaditas)"]] },
 
+  colacao:     { n: "Cola Cao y tostada con mantequilla y mermelada", t: "d", i: [["lecheProt", 250, "250 ml", "leche desnatada con proteínas"], ["colacao", 15, null, "Cola Cao (1 cucharada colmada)"], ["pan", 34, null, "pan de espelta (1 rebanada)"], ["mantequilla", 8, null, "mantequilla (capa fina)"], ["mermelada", 20, null, "mermelada (1 cucharada)"]], note: "Con leche con proteínas el desayuno es igual de sencillo y lleva el triple de proteína." },
+
   // Meriendas
   batido:      { n: "Batido de proteína y fruta", t: "m", i: [["whey", 30, null, "proteína Weider Isolate (1 cazo), con agua"], ["platano", 120, "1", "plátano"]], note: "Antes de entrenar. En vez de plátano: 1 manzana grande o 150 g de uvas rojas." },
   yogurManzana:{ n: "Yogur +Proteínas con manzana", t: "m", i: [["yogur", 240, null, "yogur +Proteínas natural (2 unidades)"], ["manzana", 180, "1", "manzana"]], note: "Antes del gimnasio. Cuando tengas la proteína en polvo, puedes cambiarlo por el batido." },
   batidoManzana:{ n: "Batido de proteína con manzana", t: "m", i: [["whey", 30, null, "proteína Weider Isolate (1 cazo), con agua o leche"], ["manzana", 180, "1", "manzana"]], note: "Antes del gimnasio." },
+  salida:      { n: "Yogur +Proteínas y fruta al salir", t: "m", i: [["yogur", 120, "1", "yogur +Proteínas natural"], ["manzana", 180, "1", "manzana"]], note: "Para llevar en la bolsa y tomar al salir del trabajo, antes del gimnasio. Sirve cualquier fruta." },
   yogurFruta:  { n: "Yogur +Proteínas con plátano", t: "m", i: [["yogur", 240, null, "yogur +Proteínas natural (2 unidades)"], ["platano", 120, "1", "plátano"]], note: "Alternativa sin proteína en polvo." },
 
   // Comidas y cenas · Pollo
@@ -80,6 +86,12 @@ const DISHES = {
   ensalada:    { n: "Ensalada completa de pollo", t: "p", g: "Pollo", i: [["pechuga", 150, null, "pechuga de pollo a la plancha (peso en crudo)"], ["patata", 200], ["huevo", 55, "1", "huevo duro"], ["aceite", 10], [null, 0, "Libre", "lechuga, tomate y la verdura que quieras"]] },
   quesadilla:  { n: "Quesadilla de pollo", t: "p", g: "Pollo", i: [["pechuga", 140], ["tortilla", 72, "2", "tortillas integrales (72 g)"], ["mozzarella", 30]] },
   poke:        { n: "Poke de pollo y edamame", t: "p", g: "Pollo", i: [["tirasPollo", 140, null, "tiras de pechuga de pollo (1 paquete)"], ["edamame", 100], ["arroz", 125, null, "arroz redondo (1 vasito)"], [null, 0, "Al gusto", "salsa de soja"]] },
+
+  // Raciones grandes, para comidas de táper que tienen que durar hasta la noche
+  polloArrozG: { n: "Pollo con arroz y verduras (ración grande)", t: "p", g: "Pollo", i: [["pechuga", 170], ["arrozSeco", 90], ["verduras", 200], ["aceite", 10]] },
+  gnocchiPolloG:{ n: "Gnocchi con filete de pollo (ración grande)", t: "p", g: "Pollo", i: [["pechuga", 170], ["gnocchi", 200], ["aceite", 5], ["verduras", 150]] },
+  gnocchiChuleta:{ n: "Gnocchi con chuleta de aguja (ración grande)", t: "p", g: "Cerdo", i: [["chuleta", 150, null, "chuleta de aguja de cerdo (peso en crudo)"], ["gnocchi", 200], ["verduras", 150]] },
+  bolonesaG:   { n: "Boloñesa con pasta de lentejas (ración grande)", t: "p", g: "Ternera", i: [["carne", 130], ["pastaLent", 90], ["tomate", 100], [null, 0, "Libre", "zanahoria rallada"]] },
 
   // Comidas y cenas · Ternera
   bolonesa:    { n: "Boloñesa con pasta de lentejas", t: "p", g: "Ternera", i: [["carne", 130], ["pastaLent", 70], ["tomate", 100], [null, 0, "Libre", "zanahoria rallada"]] },
@@ -157,15 +169,18 @@ const PEOPLE = {
   },
   raquel: {
     name: "Raquel", kcalGoal: 1650, protGoal: 110,
-    slots: [["Desayuno", "7:15", "d"], ["Comida", "14:00", "p"], ["Merienda", "18:15", "m"], ["Cena", "21:00", "p"]],
+    slots: [["Desayuno", "7:15", "d"], ["Comida", "12:00-13:00", "p"], ["Merienda", "18:00, al salir", "m"], ["Cena", "21:00", "p"]],
+    // Menú fijo. Comidas de táper grandes porque no puede merendar hasta salir del trabajo.
+    // El domingo cocina lunes a miércoles (boloñesa y pollo con arroz); el miércoles, jueves y viernes (gnocchi).
+    // Las cenas son las mismas que las de Alba.
     base: [
-      ["tostAguacate", "polloArroz", "batido", "revAtun"],
-      ["tostAguacate", "polloArroz", "batido", "quesadilla"],
-      ["tostAguacate", "polloArroz", "batido", "carneBatata"],
-      ["tostAguacate", "bolonesaPeq", "batido", "poke"],
-      ["tostAguacate", "bolonesaPeq", "batido", "revJamon"],
-      ["tostAguacate", "gnocchiPollo", "batido", "libre"],
-      ["tostAguacate", "ensalada", "batido", "wasa"]
+      ["colacao", "bolonesaG", "salida", "revAtun"],
+      ["colacao", "polloArrozG", "salida", "quesadilla"],
+      ["colacao", "bolonesaG", "salida", "carneBatata"],
+      ["colacao", "gnocchiChuleta", "salida", "poke"],
+      ["colacao", "gnocchiPolloG", "salida", "revAtun"],
+      ["colacao", "contramusloBatata", "salida", "libre"],
+      ["colacao", "polloArrozG", "salida", "wasa"]
     ]
   }
 };
