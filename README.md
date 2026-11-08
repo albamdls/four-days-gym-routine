@@ -28,13 +28,17 @@ Para probarla en local basta con abrir `index.html` en el navegador.
 
 ## Cambiar la rutina
 
-Los ejercicios están en la constante `ROUTINE`, al principio del script de `index.html`. Cada ejercicio es una línea con nombre, número de series y rango de repeticiones:
+Los ejercicios están en la constante `ROUTINE`, al principio del script de `rutina.html`. Cada ejercicio es una línea con nombre, número de series y rango de repeticiones:
 
 ```js
 ["Jalón al pecho", 3, "8-12"],
 ```
 
 El historial se guarda por nombre de ejercicio, así que al renombrar uno deja de enlazarse con sus registros anteriores.
+
+## Plan de carrera
+
+La pestaña con el icono de correr muestra el plan hasta la carrera de 5 km del 13 de diciembre de 2026, con notas y casilla de hecho por salida. Las salidas están en la constante `RACE_PLAN` de `rutina.html` (fecha, tipo y qué hacer). Las notas se guardan junto al resto de datos y entran en la copia de seguridad.
 
 ## Despliegue
 

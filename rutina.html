@@ -122,7 +122,14 @@
 <script>
 // ---------- RUTINA: edita aquí si cambias ejercicios ----------
 const ROUTINE = [
-  { tab: "Lun", name: "Torso A", focus: "Espalda y pecho", weekday: 1, ex: [
+  { tab: "Lun", name: "Pierna A", focus: "Fuerza y glúteo", weekday: 1, ex: [
+    ["Hip thrust", 4, "8-10"],
+    ["Peso muerto rumano", 3, "8-10"],
+    ["Sentadilla búlgara (o step-up si molesta la rodilla)", 3, "8 por pierna"],
+    ["Elevación de gemelos de pie", 3, "12-15"],
+    ["Abducción en máquina", 3, "15"],
+    ["Plancha lateral", 3, "30 s por lado"] ] },
+  { tab: "Mar", name: "Torso A", focus: "Espalda y pecho", weekday: 2, ex: [
     ["Jalón al pecho", 3, "8-12"],
     ["Press de pecho (máquina o banco)", 3, "8-12"],
     ["Remo sentado (polea o máquina)", 3, "10-12"],
@@ -130,12 +137,6 @@ const ROUTINE = [
     ["Elevaciones laterales con mancuernas", 3, "12-15"],
     ["Curl de bíceps con mancuernas", 2, "10-15"],
     ["Extensión de tríceps en polea", 2, "10-15"] ] },
-  { tab: "Mar", name: "Pierna A", focus: "Cuádriceps", weekday: 2, ex: [
-    ["Prensa (pies a media altura)", 3, "10-12"],
-    ["Hip thrust en máquina", 3, "12-15"],
-    ["Extensión de cuádriceps", 3, "12-15"],
-    ["Curl femoral sentado", 3, "10-15"],
-    ["Gemelo en máquina", 3, "12-15"] ] },
   { tab: "Jue", name: "Torso B", focus: "Hombros y brazos", weekday: 4, ex: [
     ["Press de hombro en máquina (agarre neutro)", 3, "8-12"],
     ["Remo en máquina con pecho apoyado", 3, "8-12"],
@@ -145,22 +146,56 @@ const ROUTINE = [
     ["Face pull", 2, "12-15"],
     ["Curl en polea", 3, "10-15"],
     ["Tríceps con cuerda", 3, "10-15"] ] },
-  { tab: "Vie", name: "Pierna B", focus: "Glúteo y femoral", weekday: 5, ex: [
-    ["Hip thrust", 3, "8-12"],
-    ["Sentadilla goblet a banco", 3, "10-12"],
-    ["Curl femoral tumbado", 3, "10-15"],
-    ["Abducción en máquina", 3, "12-15"],
-    ["Patada de glúteo (polea o máquina)", 2, "12-15"],
-    ["Crunch en máquina", 3, "10-15"] ] }
+  { tab: "Vie", name: "Pierna B", focus: "Una pierna y estabilidad", weekday: 5, ex: [
+    ["Step-up a cajón", 3, "10 por pierna"],
+    ["Prensa a una pierna", 3, "10 por pierna"],
+    ["Curl femoral tumbado", 3, "10-12"],
+    ["Puente de glúteo a una pierna", 3, "12 por lado"],
+    ["Gemelo sentado", 3, "15"],
+    ["Elevaciones de tibial", 2, "15"],
+    ["Pallof press", 3, "10 por lado"] ] }
 ];
+
+// ---------- PLAN DE CARRERA: 5 km el domingo 13 de diciembre ----------
+// [fecha, tipo, qué hacer]. Tipo: "s" suave, "q" calidad, "d" descanso, "r" carrera
+const RACE_PLAN = [
+  ["2026-11-09", "s", "4 × (4' correr + 1' andar)"],
+  ["2026-11-11", "q", "3 × (6' correr + 1' andar)"],
+  ["2026-11-13", "s", "4 × (4' correr + 1' andar)"],
+  ["2026-11-16", "s", "3 × (6' correr + 1' andar)"],
+  ["2026-11-18", "q", "2 × (10' correr + 1' andar)"],
+  ["2026-11-20", "s", "3 × (6' correr + 1' andar)"],
+  ["2026-11-23", "s", "2 × (10' correr + 1' andar)"],
+  ["2026-11-25", "q", "20' seguidos"],
+  ["2026-11-27", "s", "2 × (10' correr + 1' andar)"],
+  ["2026-11-30", "s", "20' seguidos"],
+  ["2026-12-02", "q", "30' seguidos"],
+  ["2026-12-04", "s", "20' seguidos"],
+  ["2026-12-07", "s", "15' suaves · por la tarde, Pierna A a medio gas (mitad de series, poco peso)"],
+  ["2026-12-09", "q", "15' suaves + 3 aceleraciones cortas"],
+  ["2026-12-11", "d", "Descanso o 10' muy suaves · sin Pierna B"],
+  ["2026-12-12", "d", "Descanso total, como mucho un paseo"],
+  ["2026-12-13", "r", "Carrera de 5 km 🏁"]
+];
+const RUN_TYPES = { s: ["Suave", "var(--blue)"], q: ["Calidad", "var(--accent)"], d: ["Descanso", "var(--muted)"], r: ["Carrera", "var(--red)"] };
 
 // ---------- DATOS ----------
 const KEY = "rutina-log-v1";
-let data = { sessions: [], drafts: {} };
+let data = { sessions: [], drafts: {}, runs: {} };
 try {
   const raw = localStorage.getItem(KEY);
   if (raw) data = Object.assign(data, JSON.parse(raw));
 } catch (e) {}
+// Los borradores se guardaban por posición de la pestaña (0-3). Ahora van por nombre del día,
+// para que cambiar el orden de los días no los mezcle.
+const OLD_ORDER = ["Torso A", "Pierna A", "Torso B", "Pierna B"];
+Object.keys(data.drafts).forEach(k => {
+  if (/^\d+$/.test(k) && OLD_ORDER[k]) {
+    if (!data.drafts[OLD_ORDER[k]]) data.drafts[OLD_ORDER[k]] = data.drafts[k];
+    delete data.drafts[k];
+  }
+});
+data.runs = data.runs || {};
 function persist() {
   try { localStorage.setItem(KEY, JSON.stringify(data)); }
   catch (e) { toast("No se pudo guardar en este navegador"); }
@@ -192,19 +227,25 @@ function toast(msg) {
 }
 
 // ---------- VISTAS ----------
+const RUN_TAB = ROUTINE.length, HIST_TAB = ROUTINE.length + 1;
+const todayRun = RACE_PLAN.find(r => r[0] === today() && r[1] !== "d");
 let current = ROUTINE.findIndex(d => d.weekday === new Date().getDay());
+// Por la mañana, si hoy toca correr, se abre la pestaña de correr
+if (todayRun && (current < 0 || new Date().getHours() < 13)) current = RUN_TAB;
 if (current < 0) current = 0;
 
 function renderTabs() {
   const icon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg>';
-  const labels = ROUTINE.map(d => d.tab).concat([icon]);
+  const runIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="14" cy="4.5" r="1.8"/><path d="M8 21l3-6 3 2 1 4M6 12l3-4 4 1 2 4 3 1M11 15l1.5-5.5"/></svg>';
+  const labels = ROUTINE.map(d => d.tab).concat([runIcon, icon]);
+  const aria = { [RUN_TAB]: "Correr", [HIST_TAB]: "Historial" };
   $("tabs").innerHTML = labels.map((l, i) =>
-    '<button data-i="' + i + '" class="' + (i === current ? "on" : "") + '"' + (i === ROUTINE.length ? ' aria-label="Historial" title="Historial"' : "") + ">" + l + "</button>").join("");
+    '<button data-i="' + i + '" class="' + (i === current ? "on" : "") + '"' + (aria[i] ? ' aria-label="' + aria[i] + '" title="' + aria[i] + '"' : "") + ">" + l + "</button>").join("");
 }
 
 function renderDay() {
   const day = ROUTINE[current];
-  const draft = data.drafts[current] || {};
+  const draft = data.drafts[ROUTINE[current].name] || {};
   $("subtitle").textContent = day.name + " · " + day.focus;
   $("bar").style.display = "";
   let html = "";
@@ -244,9 +285,40 @@ function renderHistory() {
   $("main").innerHTML = html;
 }
 
+function renderRuns() {
+  $("subtitle").textContent = "Plan de carrera · 5 km el 13 de diciembre";
+  $("bar").style.display = "none";
+  const t = today();
+  const next = RACE_PLAN.find(r => r[0] >= t);
+  const done = RACE_PLAN.filter(r => r[1] !== "d" && data.runs[r[0]] && data.runs[r[0]].done).length;
+  const total = RACE_PLAN.filter(r => r[1] !== "d").length;
+  const days = Math.round((new Date("2026-12-13T12:00") - new Date(t + "T12:00")) / 86400000);
+  let html = '<div class="card"><h2>' + (days > 0 ? "Faltan " + days + " días" : days === 0 ? "¡Hoy es la carrera!" : "Carrera hecha 🏁") + '</h2>' +
+    '<div class="last">Salidas hechas: <b>' + done + " de " + total + "</b>. Corre a ritmo de conversación. Si una semana te cuesta o la rodilla molesta más de un 3/10 al día siguiente, repítela en vez de avanzar.</div></div>";
+  let week = "";
+  RACE_PLAN.forEach(r => {
+    const d = new Date(r[0] + "T12:00");
+    const monday = new Date(d); monday.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+    const wk = monday.getDate() + "/" + (monday.getMonth() + 1);
+    if (wk !== week) { week = wk; html += '<div class="eyebrow" style="margin:18px 0 8px">Semana del ' + wk + "</div>"; }
+    const st = data.runs[r[0]] || {}, ty = RUN_TYPES[r[1]];
+    const isNext = next && next[0] === r[0];
+    const wd = d.toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "short" });
+    html += '<div class="card' + (st.done ? " done" : "") + '"' + (isNext ? ' style="border-color:var(--blue)"' : "") + '>' +
+      '<div class="sess-head"><h2 style="text-transform:capitalize">' + esc(wd) + (r[0] === t ? " · hoy" : "") + '</h2>' +
+      '<span class="target" style="color:' + ty[1] + '">' + ty[0] + "</span></div>" +
+      '<div class="last" style="color:var(--text);font-size:.95rem">' + esc(r[2]) + "</div>" +
+      (r[1] === "d" ? "" :
+        '<input type="text" data-run="' + r[0] + '" placeholder="Notas: minutos, sensaciones, rodilla…" value="' + esc(st.note || "") + '" style="text-align:left">' +
+        '<button class="btn mini' + (st.done ? " saved" : "") + '" data-rundone="' + r[0] + '">' + (st.done ? "Hecho ✓" : "Marcar como hecha") + "</button>") +
+      "</div>";
+  });
+  $("main").innerHTML = html;
+}
+
 function render() {
   renderTabs();
-  if (current < ROUTINE.length) renderDay(); else renderHistory();
+  if (current < ROUTINE.length) renderDay(); else if (current === RUN_TAB) renderRuns(); else renderHistory();
   window.scrollTo(0, 0);
 }
 
@@ -257,8 +329,14 @@ $("tabs").addEventListener("click", ev => {
 });
 
 $("main").addEventListener("input", ev => {
-  const i = ev.target; if (!i.dataset || i.dataset.f === undefined) return;
-  const d = data.drafts[current] = data.drafts[current] || {};
+  const i = ev.target;
+  if (i.dataset && i.dataset.run) {
+    const r = data.runs[i.dataset.run] = data.runs[i.dataset.run] || {};
+    r.note = i.value; persist(); return;
+  }
+  if (!i.dataset || i.dataset.f === undefined) return;
+  const dn = ROUTINE[current].name;
+  const d = data.drafts[dn] = data.drafts[dn] || {};
   const e = d[i.dataset.e] = d[i.dataset.e] || {};
   const s = e[i.dataset.s] = e[i.dataset.s] || {};
   s[i.dataset.f] = i.value.trim();
@@ -267,7 +345,7 @@ $("main").addEventListener("input", ev => {
 
 $("save").addEventListener("click", () => {
   const day = ROUTINE[current];
-  const draft = data.drafts[current] || {};
+  const draft = data.drafts[day.name] || {};
   const entries = {};
   day.ex.forEach((e, ei) => {
     const sets = [];
@@ -280,14 +358,21 @@ $("save").addEventListener("click", () => {
   });
   if (!Object.keys(entries).length) { toast("No hay nada que guardar"); return; }
   data.sessions.push({ id: String(Date.now()), date: $("date").value || today(), dayName: day.name, entries: entries });
-  delete data.drafts[current];
+  delete data.drafts[day.name];
   persist(); render(); toast("Sesión guardada");
 });
 
 $("main").addEventListener("click", ev => {
   const t = ev.target;
+  if (t.dataset && t.dataset.rundone) {
+    const r = data.runs[t.dataset.rundone] = data.runs[t.dataset.rundone] || {};
+    r.done = !r.done; persist(); renderRuns();
+    if (r.done) toast("¡Salida hecha!");
+    return;
+  }
   if (t.dataset && t.dataset.save !== undefined) {
-    const d = data.drafts[current] = data.drafts[current] || {};
+    const dn = ROUTINE[current].name;
+    const d = data.drafts[dn] = data.drafts[dn] || {};
     d._done = d._done || {};
     d._done[t.dataset.save] = true;
     persist();
@@ -322,7 +407,7 @@ $("main").addEventListener("change", ev => {
       const inc = JSON.parse(r.result);
       if (!inc || !Array.isArray(inc.sessions)) throw new Error();
       if (!confirm("Se sustituirán los datos actuales por los de la copia. ¿Continuar?")) return;
-      data = { sessions: inc.sessions, drafts: inc.drafts || {} };
+      data = { sessions: inc.sessions, drafts: inc.drafts || {}, runs: inc.runs || {} };
       persist(); render(); toast("Copia importada");
     } catch (e) { toast("Archivo no válido"); }
   };
