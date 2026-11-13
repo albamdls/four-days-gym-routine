@@ -96,6 +96,8 @@ const DISHES = {
   gnocchiChuleta:{ n: "Gnocchi con chuleta de aguja (ración grande)", t: "p", g: "Cerdo", i: [["chuleta", 150, null, "chuleta de aguja de cerdo (peso en crudo)"], ["gnocchi", 200], ["verduras", 150]] },
   bolonesaG:   { n: "Boloñesa con pasta de lentejas (ración grande)", t: "p", g: "Ternera", i: [["carne", 130], ["pastaLent", 90], ["tomate", 100], [null, 0, "Libre", "zanahoria rallada"]] },
 
+  gnocchiGratin:{ n: "Ñoquis gratinados con jamón y mozzarella", t: "p", g: "Cerdo", i: [["gnocchi", 180, null, "gnocchi (air fryer)"], ["jamon", 60, null, "jamón serrano en tiras"], ["mozzarella", 30], ["tomate", 100, null, "tomate frito (4 cucharadas)"]], note: "Ñoquis en la air fryer 10-12 min a 200 °C hasta que estén crujientes; mézclalos con el tomate y el jamón, mozzarella por encima y 3-4 min más para gratinar." },
+
   // Comidas y cenas · Ternera
   bolonesa:    { n: "Boloñesa con pasta de lentejas", t: "p", g: "Ternera", i: [["carne", 130], ["pastaLent", 70], ["tomate", 100], [null, 0, "Libre", "zanahoria rallada"]] },
   bolonesaPeq: { n: "Boloñesa, ración pequeña", t: "p", g: "Ternera", i: [["carne", 110], ["pastaLent", 60], ["tomate", 100], [null, 0, "Libre", "zanahoria rallada"]] },
