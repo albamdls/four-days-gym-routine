@@ -80,6 +80,8 @@ const DISHES = {
   yogurManzana:{ n: "Yogur +Proteínas con manzana", t: "m", i: [["yogur", 240, null, "yogur +Proteínas natural (2 unidades)"], ["manzana", 180, "1", "manzana"]], note: "Antes del gimnasio. Cuando tengas la proteína en polvo, puedes cambiarlo por el batido." },
   batidoManzana:{ n: "Batido de proteína con manzana", t: "m", i: [["whey", 30, null, "proteína Weider Isolate (1 cazo), con agua o leche"], ["manzana", 180, "1", "manzana"]], note: "Antes del gimnasio." },
   salida:      { n: "Yogur +Proteínas y fruta al salir", t: "m", i: [["yogur", 120, "1", "yogur +Proteínas natural"], ["manzana", 180, "1", "manzana"]], note: "Para llevar en la bolsa y tomar al salir del trabajo, antes del gimnasio. Sirve cualquier fruta." },
+  yogurSolo:   { n: "Yogur +Proteínas solo (2 unidades)", t: "m", i: [["yogur", 240, null, "yogur +Proteínas natural (2 unidades)"]], note: "Sin fruta. También sirve para después de correr." },
+  yogurSolo1:  { n: "Yogur +Proteínas solo (1 unidad)", t: "m", i: [["yogur", 120, "1", "yogur +Proteínas natural"]], note: "Sin fruta." },
   yogurFruta:  { n: "Yogur +Proteínas con plátano", t: "m", i: [["yogur", 240, null, "yogur +Proteínas natural (2 unidades)"], ["platano", 120, "1", "plátano"]], note: "Alternativa sin proteína en polvo." },
 
   // Comidas y cenas · Pollo
