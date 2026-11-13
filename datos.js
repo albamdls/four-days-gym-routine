@@ -23,7 +23,7 @@ const FOODS = {
   yogur:       ["yogur +Proteínas natural", 52, 10, "E", "Huevos y lácteos", [120, "unidad", "unidades"]],
   quesoUntar:  ["queso para untar light", 130, 9, "E", "Huevos y lácteos"],
   mozzarella:  ["mozzarella rallada", 283, 21, "W", "Huevos y lácteos"],
-  lecheProt:   ["leche desnatada con proteínas", 53, 6.4, "W", "Huevos y lácteos", "ml"],
+  lecheProt:   ["leche con proteínas sin lactosa", 53, 6.4, "E", "Huevos y lácteos", "ml"],
   leche:       ["leche desnatada", 35, 3.2, "W", "Huevos y lácteos", "ml"],
   lecheSemi:   ["leche semidesnatada", 46, 3.2, "G", "Huevos y lácteos", "ml"],
   aguacate:    ["aguacate", 160, 2, "G", "Fruta y verdura"],
@@ -42,6 +42,7 @@ const FOODS = {
   wasa:        ["Wasa con avena", 370, 12.2, "E", "Despensa", [17.5, "lámina", "láminas"]],
   nueces:      ["nueces", 716, 17, "W", "Despensa"],
   azucarCoco:  ["azúcar de coco", 380, 0, "G", "Despensa"],
+  cereales:    ["cereales integrales de cacao Nestlé", 351, 12.1, "E", "Despensa"],
   nesquik:     ["Nesquik", 380, 5, "G", "Despensa"],
   colacao:     ["Cola Cao", 376, 6.8, "G", "Despensa"],
   mantequilla: ["mantequilla", 717, 0.9, "G", "Huevos y lácteos"],
@@ -69,6 +70,8 @@ const DISHES = {
   yogur:       { n: "Yogur con azúcar de coco", t: "d", i: [["yogur", 240, null, "yogur +Proteínas natural (2 unidades)"], ["azucarCoco", 10, null, "azúcar de coco (2 cucharaditas)"], ["nueces", 20], ["uvas", 100]], note: "Fácil de llevar a la oficina. En vez de uvas: 1 manzana." },
   tostAguacate:{ n: "Tostadas con jamón y aguacate", t: "d", i: [["pan", 68, null, "pan de espelta (2 rebanadas)"], ["jamon", 40], ["aguacate", 40], ["lecheSemi", 200, "200 ml"], ["nesquik", 10, null, "Nesquik (2 cucharaditas)"]] },
   tostHuevo:   { n: "Tostadas con aguacate y huevo", t: "d", i: [["pan", 68, null, "pan de espelta (2 rebanadas)"], ["aguacate", 60], ["huevo", 55, "1", "huevo"], ["lecheSemi", 200, "200 ml"], ["nesquik", 10, null, "Nesquik (2 cucharaditas)"]] },
+
+  cereales:    { n: "Cereales de cacao con leche", t: "d", i: [["cereales", 40], ["lecheProt", 250, "250 ml (1 vaso)", "leche con proteínas"]], note: "Los días de correr, o si te quedas con hambre, añade 1 manzana o un puñado de uvas." },
 
   colacao:     { n: "Cola Cao y tostada con mantequilla y mermelada", t: "d", i: [["lecheProt", 250, "250 ml", "leche desnatada con proteínas"], ["colacao", 15, null, "Cola Cao (1 cucharada colmada)"], ["pan", 34, null, "pan de espelta (1 rebanada)"], ["mantequilla", 8, null, "mantequilla (capa fina)"], ["mermelada", 20, null, "mermelada (1 cucharada)"]], note: "Con leche con proteínas el desayuno es igual de sencillo y lleva el triple de proteína." },
 
